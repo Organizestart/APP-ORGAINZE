@@ -3,21 +3,21 @@ import {
   safePreviewAccounts,
   safePreviewInviteRecords,
   safePreviewTeamAccounts,
-} from "../src/PreviewTestAccounts.js";
+} from "../src/SafePreviewAccounts.js";
 
 const requiredFiles = [
   "ARCHITECTURE_MAP.md",
   "FILE_GUIDE.md",
-  "src/StartApp.jsx",
-  "src/CrashProtectionScreen.jsx",
-  "src/WorkForceAppScreens.jsx",
-  "src/DashboardActionPath.jsx",
-  "src/WorkForceScreenDesign.css",
-  "src/RolePermissionRules.js",
-  "src/SavedDataRepairRules.js",
-  "src/PreviewTestAccounts.js",
-  "src/lib/SupabaseConnection.js",
-  "server/AdminCommandReviewServer.mjs",
+  "src/AppStartsHere.jsx",
+  "src/BlankScreenSafety.jsx",
+  "src/AllWorkForceScreens.jsx",
+  "src/DashboardNextSteps.jsx",
+  "src/AppVisualDesign.css",
+  "src/RoleAccessRules.js",
+  "src/FixSavedAppData.js",
+  "src/SafePreviewAccounts.js",
+  "src/lib/DatabaseConnection.js",
+  "server/PlatformAdminReviewService.mjs",
   "scripts/check-architecture-boundaries.mjs",
 ];
 
@@ -61,14 +61,14 @@ async function run() {
     read("ARCHITECTURE_MAP.md"),
     read("FILE_GUIDE.md"),
     read("package.json"),
-    read("src/StartApp.jsx"),
-    read("src/WorkForceAppScreens.jsx"),
-    read("src/DashboardActionPath.jsx"),
-    read("src/RolePermissionRules.js"),
-    read("src/SavedDataRepairRules.js"),
-    read("src/PreviewTestAccounts.js"),
-    read("src/lib/SupabaseConnection.js"),
-    read("src/CrashProtectionScreen.jsx"),
+    read("src/AppStartsHere.jsx"),
+    read("src/AllWorkForceScreens.jsx"),
+    read("src/DashboardNextSteps.jsx"),
+    read("src/RoleAccessRules.js"),
+    read("src/FixSavedAppData.js"),
+    read("src/SafePreviewAccounts.js"),
+    read("src/lib/DatabaseConnection.js"),
+    read("src/BlankScreenSafety.jsx"),
   ]);
 
   assertIncludes(fileGuide, requiredFiles, "FILE_GUIDE.md");
@@ -81,27 +81,27 @@ async function run() {
     "Scaling Rules",
   ], "ARCHITECTURE_MAP.md");
   assertIncludes(startApp, [
-    'import { App } from "./WorkForceAppScreens.jsx"',
-    'import { CrashProtectionScreen } from "./CrashProtectionScreen.jsx"',
-    'import "./WorkForceScreenDesign.css"',
-    "<CrashProtectionScreen>",
+    'import { App } from "./AllWorkForceScreens.jsx"',
+    'import { BlankScreenSafety } from "./BlankScreenSafety.jsx"',
+    'import "./AppVisualDesign.css"',
+    "<BlankScreenSafety>",
     "<App />",
-  ], "src/StartApp.jsx");
+  ], "src/AppStartsHere.jsx");
   assertIncludes(mainApp, [
-    'from "./DashboardActionPath.jsx"',
-    'from "./RolePermissionRules.js"',
-    'from "./SavedDataRepairRules.js"',
-    'from "./PreviewTestAccounts.js"',
-    'from "./lib/SupabaseConnection.js"',
+    'from "./DashboardNextSteps.jsx"',
+    'from "./RoleAccessRules.js"',
+    'from "./FixSavedAppData.js"',
+    'from "./SafePreviewAccounts.js"',
+    'from "./lib/DatabaseConnection.js"',
     "repairWorkspaceState",
     "safeSectionFromRules",
     "sectionIdsFromRules",
-  ], "src/WorkForceAppScreens.jsx");
+  ], "src/AllWorkForceScreens.jsx");
   assertIncludes(dashboardActionPath, [
-    "DashboardActionPath",
+    "DashboardNextSteps",
     "dashboard-action-path",
     "data-home-target",
-  ], "src/DashboardActionPath.jsx");
+  ], "src/DashboardNextSteps.jsx");
   assertIncludes(roleRules, [
     "firstSectionByRole",
     "sectionIdsForRole",
@@ -109,31 +109,31 @@ async function run() {
     "safeSectionForRole",
     "runtimeRoleForSection",
     "platform-admin",
-  ], "src/RolePermissionRules.js");
+  ], "src/RoleAccessRules.js");
   assertIncludes(stateRecovery, [
     "repairWorkspaceState",
     "migrateLegacyLocationCopy",
     "safeArray",
     "safeObject",
-  ], "src/SavedDataRepairRules.js");
+  ], "src/FixSavedAppData.js");
   assertIncludes(safePreviewAccountsSource, [
     "safePreviewAccounts",
     "safePreviewAccountUrl",
     "safePreviewFlowChecks",
     "safePreviewInviteRecords",
     "safePreviewTeamAccounts",
-  ], "src/PreviewTestAccounts.js");
+  ], "src/SafePreviewAccounts.js");
   assertIncludes(supabaseConnection, [
     "VITE_SUPABASE_URL",
     "VITE_SUPABASE_ANON_KEY",
     "createClient",
-  ], "src/lib/SupabaseConnection.js");
+  ], "src/lib/DatabaseConnection.js");
   assertIncludes(crashShield, [
-    "CrashProtectionScreen",
+    "BlankScreenSafety",
     "componentDidCatch",
     "This change needs review",
     "Open Safe Preview",
-  ], "src/CrashProtectionScreen.jsx");
+  ], "src/BlankScreenSafety.jsx");
   assertIncludes(packageJson, [
     '"architecture-boundaries:smoke": "node scripts/check-architecture-boundaries.mjs"',
     "npm run architecture-boundaries:smoke",
@@ -142,7 +142,7 @@ async function run() {
   assert(safePreviewAccounts.length === 10, `Expected 10 safe preview accounts, found ${safePreviewAccounts.length}.`);
   assert(safePreviewTeamAccounts().length === 9, "Safe preview team accounts should exclude the owner.");
   assert(safePreviewInviteRecords().length === 9, "Safe preview invite records should match manager and employee accounts.");
-  assert(lineCount(mainApp) <= 13000, `src/WorkForceAppScreens.jsx is ${lineCount(mainApp)} lines. Extract another stable rule set before adding more large screens.`);
+  assert(lineCount(mainApp) <= 13000, `src/AllWorkForceScreens.jsx is ${lineCount(mainApp)} lines. Extract another stable rule set before adding more large screens.`);
 
   console.log(JSON.stringify({
     architectureBoundaries: "passed",

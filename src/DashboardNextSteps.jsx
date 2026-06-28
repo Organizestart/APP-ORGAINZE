@@ -1,4 +1,4 @@
-export function DashboardActionPath({ eyebrow, title, detail, tone = "good", items = [] }) {
+export function DashboardNextSteps({ eyebrow, title, detail, tone = "good", items = [] }) {
   return (
     <section className={`dashboard-action-path ${tone}`} aria-label={title || "Dashboard action path"}>
       <div className="dashboard-action-path-summary">

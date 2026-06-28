@@ -21,8 +21,8 @@ function findPassiveControls(source, controlName, allowedPattern) {
 
 async function run() {
   const files = [
-    "src/WorkForceAppScreens.jsx",
-    "src/DashboardActionPath.jsx",
+    "src/AllWorkForceScreens.jsx",
+    "src/DashboardNextSteps.jsx",
   ];
   const checks = await Promise.all(files.map(async (file) => {
     const source = await readFile(file, "utf8");

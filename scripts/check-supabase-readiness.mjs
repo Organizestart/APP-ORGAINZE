@@ -38,7 +38,7 @@ async function run() {
     readFile("supabase/README.md", "utf8"),
     readFile("supabase/migrations/20260627000000_initial_workforce_schema.sql", "utf8"),
     readFile("supabase/migrations/20260628000000_security_hardening.sql", "utf8"),
-    readFile("src/lib/SupabaseConnection.js", "utf8"),
+    readFile("src/lib/DatabaseConnection.js", "utf8"),
     readFile("SECURITY_RUNBOOK.md", "utf8"),
     readFile("package.json", "utf8"),
   ]);

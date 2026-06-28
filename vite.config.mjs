@@ -10,7 +10,7 @@ export default defineConfig({
       "/api/command": "http://127.0.0.1:8787",
     },
     warmup: {
-      clientFiles: ["./src/StartApp.jsx"],
+      clientFiles: ["./src/AppStartsHere.jsx"],
     },
   },
   plugins: [react()],

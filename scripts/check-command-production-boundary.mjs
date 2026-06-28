@@ -29,7 +29,7 @@ async function waitForHealth(port) {
 }
 
 async function startService(name, port, env) {
-  const service = spawn(process.execPath, ["server/AdminCommandReviewServer.mjs"], {
+  const service = spawn(process.execPath, ["server/PlatformAdminReviewService.mjs"], {
     cwd: process.cwd(),
     env: {
       ...process.env,

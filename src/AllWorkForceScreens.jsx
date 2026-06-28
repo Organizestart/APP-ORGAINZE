@@ -37,22 +37,22 @@ import {
   WarningCircle,
   X,
 } from "@phosphor-icons/react";
-import { isSupabaseConfigured, supabase } from "./lib/SupabaseConnection.js";
-import { DashboardActionPath } from "./DashboardActionPath.jsx";
+import { isSupabaseConfigured, supabase } from "./lib/DatabaseConnection.js";
+import { DashboardNextSteps } from "./DashboardNextSteps.jsx";
 import {
   safePreviewAccounts,
   safePreviewAccountUrl,
   safePreviewFlowChecks,
   safePreviewInviteRecords,
   safePreviewTeamAccounts,
-} from "./PreviewTestAccounts.js";
+} from "./SafePreviewAccounts.js";
 import {
   firstSectionByRole,
   runtimeRoleForSection,
   safeSectionForRole as safeSectionFromRules,
   sectionIdsForRole as sectionIdsFromRules,
-} from "./RolePermissionRules.js";
-import { repairWorkspaceState } from "./SavedDataRepairRules.js";
+} from "./RoleAccessRules.js";
+import { repairWorkspaceState } from "./FixSavedAppData.js";
 
 const mainWorkspaceStorageKey = "workforce-command-center-v9";
 const safePreviewStorageKey = "workforce-command-center-safe-preview-v1";
@@ -4482,7 +4482,7 @@ function ManagerDashboard({ data, metrics, shifts, openModal, patchData, go, goT
         <Metric label="Approvals" value={pendingCount} detail={pendingRequest ? `${pendingRequest.type} waiting` : ownerManaged ? "Owner-managed queue" : `${dateInfo.label} queue clear`} state={pendingCount ? "warn" : "good"} onClick={openManagerRequests} actionTarget={requestTarget} />
         <Metric label="Guide Progress" value={`${metrics.guide}%`} detail={lowGuide ? `Review ${lowGuide.title}` : "Assigned cards"} onClick={openManagerGuide} actionTarget={guideTarget} />
       </section>
-      <DashboardActionPath
+      <DashboardNextSteps
         eyebrow={ownerManaged ? "Owner-managed route" : "Manager path"}
         title={openShift ? "Close coverage first" : noDayPlan ? "Build the day plan" : pendingCount || timeFlagCount ? "Clear the next decision" : "Team path is clear"}
         detail={openShift ? `${locationName(openShift.locationId)} needs ${openShift.role}.` : noDayPlan ? `${dateInfo.label} needs a schedule before team asks.` : "Schedule, requests, time, and handoff stay in one safe manager flow."}
@@ -4923,7 +4923,7 @@ function EmployeeDashboard({ data, go, patchData, day }) {
         </button>
       </article>
 
-      <DashboardActionPath
+      <DashboardNextSteps
         eyebrow="Employee path"
         title={nextShift ? "Shift path ready" : openShifts.length ? "Pickup shift available" : "Day is clear"}
         detail={nextShift ? `${locationName(nextShift.locationId)} - ${nextShift.role}` : openShifts.length ? `${openShifts.length} open shift${openShifts.length === 1 ? "" : "s"} for ${dateLabel}.` : `No approved shift is scheduled for ${dateLabel}.`}
