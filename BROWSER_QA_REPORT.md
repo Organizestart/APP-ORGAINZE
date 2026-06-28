@@ -15,6 +15,7 @@ Passed:
 - Restricted owner/admin text did not appear on manager, employee, or signed-out screens.
 - Safe Preview stayed visible on preview routes.
 - Manager and employee dashboard action paths stayed contained, showed four role-safe workflow buttons, and did not create page-level horizontal overflow.
+- Manager and employee dashboard action labels stayed readable instead of being cut off inside tight cards.
 
 Observed and accepted:
 

@@ -1745,7 +1745,7 @@ textarea {
 
 .dashboard-action-path {
   display: grid;
-  grid-template-columns: minmax(230px, 0.58fr) minmax(0, 1.42fr);
+  grid-template-columns: minmax(230px, 0.46fr) minmax(0, 1.54fr);
   gap: 10px;
   align-items: stretch;
   min-width: 0;
@@ -1795,7 +1795,7 @@ textarea {
 
 .dashboard-action-path-items {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(176px, 1fr));
   gap: 8px;
   min-width: 0;
 }
@@ -1854,15 +1854,13 @@ textarea {
 .dashboard-action-path-item small {
   display: block;
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .dashboard-action-path-item strong {
   color: var(--ink);
   font-size: 0.83rem;
   line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 .dashboard-action-path-item small {
@@ -1870,6 +1868,10 @@ textarea {
   color: var(--muted);
   font-size: 0.7rem;
   line-height: 1.25;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
 }
 
 .dashboard-action-path-item em {
