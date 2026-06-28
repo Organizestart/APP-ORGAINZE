@@ -20,6 +20,7 @@ This pass stayed inside Safe Change Preview and did not create real Supabase use
 - Added account-flow smoke tests.
 - Added a performance budget check so broad changes do not quietly add lag.
 - Added full role-section smoke tests for owner, manager, employee, signed-out, and platform-admin screens.
+- Added account-access tests for signed-out access, preview account links, invite records, and manager employee-only invite limits.
 - Added information-flow tests for dashboard handoff, coverage asks, request decisions, time correction, reports, events, invites, and employee near-work notes.
 - Added saved-data recovery tests so broken or older local prototype data does not blank the app.
 - Added visual-safety tests for representative screens, bad display values, long labels, and CSS containment guardrails.
@@ -35,6 +36,7 @@ These files were added or separated so the app can scale without putting every r
 - `src/RoleAccessRules.js`: owns allowed sections, safe fallbacks, and manager-as-employee behavior.
 - `src/StateRecoveryRules.js`: repairs broken or older saved prototype data before screens use it.
 - `scripts/testInformationFlow.mjs`: proves important actions update the right local state.
+- `scripts/testAccountAccessFlow.mjs`: proves linked preview accounts and invite boundaries stay intact.
 - `scripts/testSavedDataRecovery.mjs`: proves corrupt saved data does not make the app blank.
 - `scripts/testVisualSafety.mjs`: checks representative screens and CSS containment rules.
 - `scripts/testSupabaseReadiness.mjs`: checks Supabase migrations, secrets, and production-readiness boundaries.
@@ -107,6 +109,7 @@ Passed:
 - `npm run command-boundary:smoke`
 - `npm run safe-change:smoke`
 - `npm run preview-accounts:smoke`
+- `npm run account-access:smoke`
 - `npm run dashboard-layout:smoke`
 - `npm run all-sections:smoke`
 - `npm run information-flow:smoke`
@@ -122,6 +125,7 @@ The current `npm run safe-change:check` gate now covers:
 - Command service health and platform-admin separation.
 - Production command-service disable/token/origin boundary.
 - Safe Change Preview and ten linked accounts.
+- Signed-out account access and invite boundaries.
 - Owner, manager, employee, signed-out, and platform-admin section rendering.
 - Information-flow state updates.
 - Saved-data recovery.

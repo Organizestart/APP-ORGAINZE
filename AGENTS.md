@@ -116,4 +116,6 @@ Safe preview visual refinement rule: broad dashboard, layout, spacing, density, 
 
 Safe preview account testing rule: broad account, invite, and role-boundary experiments should use the ten local Safe Preview test accounts before creating real Supabase Auth users. Owners may see all preview account links, managers may see manager and employee test paths only, and employees may see employee-only test paths. Real Supabase account creation should be a later production-auth pass with explicit user approval.
 
+Account access testing rule: account, invite, sign-in, sign-up, use-code, forgot-password, or role-link changes must keep `npm run account-access:smoke` passing. Signed-out screens must stay neutral without owner/manager/employee role buttons, all ten Safe Preview accounts must keep valid linked URLs, invite records must match the preview accounts, and manager-created invites must stay employee-only.
+
 Safe change performance rule: safe-preview changes must keep the app under the current performance budget. Run `npm run safe-change:check` after broad UI work; it includes build, route smoke tests, account role tests, command-service checks, and bundle-size budget checks so new experiments do not add avoidable lag.

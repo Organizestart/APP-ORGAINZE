@@ -38,6 +38,7 @@ npm run safe-change:check
 - Manager home and key manager routes still load.
 - Employee home and key employee routes still load.
 - Ten local preview accounts exist and render through the correct role-safe screen.
+- Signed-out account access, linked preview-account URLs, invite records, and manager employee-only invite limits are checked.
 - The built app stays under the current performance budget so test changes do not quietly add lag.
 - Signed-out state does not show Owner, Manager, or Employee role buttons.
 - Admin command review stays platform-admin-only.

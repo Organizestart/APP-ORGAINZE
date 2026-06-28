@@ -18,6 +18,7 @@ These are the main files you will usually care about.
 | `scripts/testHomeButtons.mjs` | Checks that owner, manager, employee, and signed-out home buttons still work. |
 | `scripts/testSafePreview.mjs` | Checks that Safe Change Preview works without exposing the wrong role controls. |
 | `scripts/testPreviewAccounts.mjs` | Checks the ten Safe Preview accounts and their role boundaries. |
+| `scripts/testAccountAccessFlow.mjs` | Checks signed-out account access, linked preview-account URLs, and manager employee-only invite limits. |
 | `scripts/testDashboardLayout.mjs` | Checks the owner and manager dashboard format does not go back to cramped cards. |
 | `scripts/testAllRoleSections.mjs` | Opens every owner, manager, employee, signed-out, and platform-admin section in Safe Preview. |
 | `scripts/testInformationFlow.mjs` | Checks that important actions really update schedule, requests, time, events, reports, and team messages. |
