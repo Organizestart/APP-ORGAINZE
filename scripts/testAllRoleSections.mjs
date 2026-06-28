@@ -2,6 +2,7 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { readFile } from "node:fs/promises";
 import { createServer } from "vite";
+import { sectionIdsForRole } from "../src/RoleAccessRules.js";
 
 const storage = new Map();
 
@@ -50,6 +51,14 @@ function assertIncludes(html, labels, screen) {
 function assertExcludes(html, labels, screen) {
   const present = labels.filter((label) => html.includes(label));
   if (present.length) throw new Error(`${screen} should not show: ${present.join(", ")}`);
+}
+
+function assertSameList(actual, expected, screen) {
+  const missing = expected.filter((item) => !actual.includes(item));
+  const extra = actual.filter((item) => !expected.includes(item));
+  if (missing.length || extra.length) {
+    throw new Error(`${screen} drifted. Missing: ${missing.join(", ") || "none"}. Extra: ${extra.join(", ") || "none"}.`);
+  }
 }
 
 async function renderScreen(server, search) {
@@ -151,6 +160,16 @@ async function run() {
   });
 
   try {
+    const appModule = await server.ssrLoadModule("/src/MainWorkForceApp.jsx");
+    assertIncludes(appModule.navigationSectionIdsForTest.toString(), ["navForRole"], "navigation test export");
+    for (const role of ["owner", "manager", "employee", "platform-admin"]) {
+      assertSameList(
+        appModule.navigationSectionIdsForTest(role),
+        sectionIdsForRole(role),
+        `${role} navigation and access rules`,
+      );
+    }
+
     const owner = await assertRoleSections(server, "owner", "preview-owner-maya", ownerSections, globalRestricted);
     const manager = await assertRoleSections(server, "manager", "preview-manager-jordan", managerSections, managerRestricted);
     const employee = await assertRoleSections(server, "employee", "preview-employee-luis", employeeSections, employeeRestricted);

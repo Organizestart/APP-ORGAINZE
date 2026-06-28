@@ -1777,6 +1777,10 @@ function navForRole(role, data = baseState) {
   return employeeNav;
 }
 
+export function navigationSectionIdsForTest(role, data = baseState) {
+  return navForRole(role, data).map(([id]) => id);
+}
+
 function roleAccessOptions(data = baseState) {
   return { ownerRunsManagerFunctions: ownerRunsManagerFunctions(data) };
 }
