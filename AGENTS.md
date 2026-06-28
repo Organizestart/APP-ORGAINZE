@@ -122,4 +122,6 @@ Account access testing rule: account, invite, sign-in, sign-up, use-code, forgot
 
 Plain file naming rule: new app, server, and safety-check files should use plain purpose names that Felix can understand without coding experience. Prefer names like `MainWorkForceApp`, `AppDesign`, `RoleAccessRules`, and `check-home-buttons` over hidden abbreviations or generic developer shorthand, and keep `FILE_GUIDE.md` updated when files are added or renamed.
 
+Architecture boundary rule: keep `npm run architecture-boundaries:smoke` passing when moving app code, adding new screens, or changing startup, role access, saved-data recovery, safe-preview accounts, Supabase setup, crash recovery, or command review service code. New large rule sets should be extracted into purpose-named files and listed in `ARCHITECTURE_MAP.md` and `FILE_GUIDE.md` instead of making `src/MainWorkForceApp.jsx` absorb every responsibility.
+
 Safe change performance rule: safe-preview changes must keep the app under the current performance budget. Run `npm run safe-change:check` after broad UI work; it includes build, route smoke tests, account role tests, command-service checks, and bundle-size budget checks so new experiments do not add avoidable lag.

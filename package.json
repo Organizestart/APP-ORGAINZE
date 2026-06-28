@@ -15,6 +15,7 @@
     "preview-accounts:smoke": "node scripts/check-preview-accounts.mjs",
     "account-access:smoke": "node scripts/check-account-access-flow.mjs",
     "clickable-actions:smoke": "node scripts/check-clickable-actions.mjs",
+    "architecture-boundaries:smoke": "node scripts/check-architecture-boundaries.mjs",
     "dashboard-layout:smoke": "node scripts/check-dashboard-layout.mjs",
     "all-sections:smoke": "node scripts/check-all-role-sections.mjs",
     "information-flow:smoke": "node scripts/check-information-flow.mjs",
@@ -22,7 +23,7 @@
     "visual-safety:smoke": "node scripts/check-visual-safety.mjs",
     "supabase-readiness:smoke": "node scripts/check-supabase-readiness.mjs",
     "performance:budget": "node scripts/check-app-size-and-speed.mjs",
-    "safe-change:check": "npm run build && npm run performance:budget && npm run home:smoke && npm run command:smoke && npm run command-boundary:smoke && npm run safe-change:smoke && npm run preview-accounts:smoke && npm run account-access:smoke && npm run clickable-actions:smoke && npm run dashboard-layout:smoke && npm run all-sections:smoke && npm run information-flow:smoke && npm run saved-data:smoke && npm run visual-safety:smoke && npm run supabase-readiness:smoke"
+    "safe-change:check": "npm run build && npm run performance:budget && npm run home:smoke && npm run command:smoke && npm run command-boundary:smoke && npm run safe-change:smoke && npm run preview-accounts:smoke && npm run account-access:smoke && npm run clickable-actions:smoke && npm run architecture-boundaries:smoke && npm run dashboard-layout:smoke && npm run all-sections:smoke && npm run information-flow:smoke && npm run saved-data:smoke && npm run visual-safety:smoke && npm run supabase-readiness:smoke"
   },
   "dependencies": {
     "@openai/agents": "^0.12.0",

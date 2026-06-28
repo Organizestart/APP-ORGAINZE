@@ -22,6 +22,7 @@ Files that start with `check-` are safety checks. They do not change the app; th
 | `scripts/check-preview-accounts.mjs` | Checks the ten Safe Preview accounts and their role boundaries. |
 | `scripts/check-account-access-flow.mjs` | Checks signed-out account access, linked preview-account URLs, and manager employee-only invite limits. |
 | `scripts/check-clickable-actions.mjs` | Checks that visible buttons and dropdowns have a real action or intentional disabled state. |
+| `scripts/check-architecture-boundaries.mjs` | Checks that role rules, saved-data repair, test accounts, crash recovery, and admin service stay separated. |
 | `scripts/check-dashboard-layout.mjs` | Checks the owner and manager dashboard format does not go back to cramped cards. |
 | `scripts/check-all-role-sections.mjs` | Opens every owner, manager, employee, signed-out, and platform-admin section in Safe Preview. |
 | `scripts/check-information-flow.mjs` | Checks that important actions really update schedule, requests, time, events, reports, and team messages. |
@@ -31,7 +32,9 @@ Files that start with `check-` are safety checks. They do not change the app; th
 | `scripts/check-app-size-and-speed.mjs` | Checks that test changes do not make the app bundle too large and slow. |
 | `supabase/migrations/` | Database setup and security changes that Supabase reads from GitHub. |
 | `SECURITY_RUNBOOK.md` | Human checklist for account security, bot protection, billing protection, and audit logging. |
+| `ARCHITECTURE_MAP.md` | Plain-English map of how the app is separated so it can keep scaling safely. |
 | `CHANGE_SAFETY_ARCHITECTURE.md` | Plain-English plan for testing app changes before making them part of the main app. |
+| `FILE_GUIDE.md` | Plain-English list of the important code and support files. |
 | `SAFE_PREVIEW_REFINEMENT_REPORT.md` | Summary of the ten-account safe-preview test pass, mistakes learned, and verification results. |
 
 Some names must stay technical because tools expect them:
