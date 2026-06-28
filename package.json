@@ -7,9 +7,9 @@
     "dev": "concurrently -k -n command,vite \"npm run command:service\" \"vite --host 127.0.0.1\"",
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1",
-    "command:service": "node server/command-service.mjs",
-    "command:smoke": "node scripts/command-smoke.mjs",
-    "home:smoke": "node scripts/home-action-smoke.mjs"
+    "command:service": "node server/AdminReviewService.mjs",
+    "command:smoke": "node scripts/checkAdminReviewService.mjs",
+    "home:smoke": "node scripts/checkHomeButtons.mjs"
   },
   "dependencies": {
     "@openai/agents": "^0.12.0",

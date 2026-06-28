@@ -37,7 +37,7 @@ import {
   WarningCircle,
   X,
 } from "@phosphor-icons/react";
-import { isSupabaseConfigured, supabase } from "./lib/supabaseClient.js";
+import { isSupabaseConfigured, supabase } from "./lib/SupabaseConnection.js";
 
 const storageKey = "workforce-command-center-v9";
 const commandReviewStorageKey = "workforce-admin-command-review-latest";
