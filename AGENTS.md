@@ -24,6 +24,8 @@ Signed-out rule: when a user signs out, do not show Owner, Manager, or Employee 
 
 Role account settings rule: every signed-in role needs a normal account menu with sign out. Owner settings may include business, billing, seats, danger zone, and workspace-wide security. Manager settings may include manager profile, notifications, and account security only; they must never expose owner billing, reports, events, workspace delete, or platform-admin tools. Employee settings may include employee profile, notifications, and account security only; they must never expose manager approvals, owner controls, billing, reports, events, invites, or platform-admin tools.
 
+Manager employee-section rule: managers may access employee-section routes such as My Dashboard, My Schedule, Open Shifts, My Time Clock, My Requests, and My Guide, but those pages must render with employee-safe behavior. Manager operations like time exceptions, team request approvals, owner reports, events, billing, and workspace settings must stay out of employee-section pages.
+
 Home dashboard rule: every visible dashboard action should connect to a real workflow, modal, filtered view, or chat thread. Dashboard communication actions should update the team communication system, not only update a standalone card.
 
 Owner and manager dashboard cleanup rule: owner and manager dashboards are daily operations surfaces, not billing, admin, or AI-agent review surfaces. Keep owner home focused on schedule health, gaps, requests, time risk, team handoff, events, and guide work; keep billing and workspace administration in Settings. Keep manager home focused on schedule, requests, time, guide, and team handoff only. Real Agents SDK / Command Review work stays platform-admin-only.
@@ -95,6 +97,8 @@ Owner guide snapshot rule: the owner home Guide Completion card must follow the 
 Owner announcement snapshot rule: the owner home Latest Announcement card must follow the selected workspace date and location, allow a new post, open Team Announcements, and share a compact dated update into the announcement thread. It should not be only a static preview.
 
 Change safety architecture rule: when planning a risky UI or workflow change, test it in Safe Change Preview first by using `preview=safe-change`. Preview state must use the separate safe-preview storage key and must not overwrite the normal prototype state. Keep the Safe Change Guard around the app entrance so screen crashes show a recovery state instead of a blank page. Before treating a change as accepted, run `npm run safe-change:check` and keep owner, manager, employee, signed-out, and platform-admin boundaries passing.
+
+Safe preview visual refinement rule: broad dashboard, layout, spacing, density, or workflow-format experiments should be scoped under `safe-change-preview-mode` first. Do not silently apply experimental visual changes to the normal app until the user has reviewed the preview and accepted the direction.
 
 Safe preview account testing rule: broad account, invite, and role-boundary experiments should use the ten local Safe Preview test accounts before creating real Supabase Auth users. Owners may see all preview account links, managers may see manager and employee test paths only, and employees may see employee-only test paths. Real Supabase account creation should be a later production-auth pass with explicit user approval.
 

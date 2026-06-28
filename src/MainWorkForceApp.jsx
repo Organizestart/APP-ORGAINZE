@@ -37,14 +37,14 @@ import {
   WarningCircle,
   X,
 } from "@phosphor-icons/react";
-import { isSupabaseConfigured, supabase } from "./lib/SupabaseConnection.js";
+import { isSupabaseConfigured, supabase } from "./lib/ConnectToSupabase.js";
 import {
   safePreviewAccounts,
   safePreviewAccountUrl,
   safePreviewFlowChecks,
   safePreviewInviteRecords,
   safePreviewTeamAccounts,
-} from "./SafePreviewTestData.js";
+} from "./SafePreviewAccounts.js";
 
 const mainWorkspaceStorageKey = "workforce-command-center-v9";
 const safePreviewStorageKey = "workforce-command-center-safe-preview-v1";
@@ -1536,7 +1536,7 @@ export function App() {
   }
 
   return (
-    <div className={`app-shell role-${role} section-${section} density-${density.toLowerCase()}`}>
+    <div className={`app-shell role-${role} section-${section} density-${density.toLowerCase()} ${safePreview ? "safe-change-preview-mode" : ""}`}>
       <Sidebar nav={nav} role={role} section={section} onRole={changeRole} onSection={navigateSection} data={data} />
       <main className="workspace">
         <Topbar
@@ -1653,8 +1653,8 @@ function SafeChangePreviewBar({ data, role, day, onReset, onCopyMain }) {
           <a href={exitUrl}>Exit Preview</a>
         </div>
       </div>
-      <div className="safe-preview-test-lab">
-        <div className="safe-preview-lab-head">
+      <details className="safe-preview-test-lab">
+        <summary>
           <div>
             <p className="eyebrow">Test lab</p>
             <h3>{labTitle}</h3>
@@ -1664,30 +1664,33 @@ function SafeChangePreviewBar({ data, role, day, onReset, onCopyMain }) {
             <span><strong>{managerCount}</strong> managers</span>
             <span><strong>{employeeCount}</strong> employees</span>
           </div>
+          <span className="safe-preview-lab-toggle" aria-hidden="true" />
+        </summary>
+        <div className="safe-preview-lab-body">
+          <div className="safe-preview-account-strip" aria-label="Test account links">
+            {visibleAccounts.map((account) => (
+              <a
+                key={account.id}
+                className={`${currentAccountId === account.id ? "active" : ""} ${account.role}`}
+                href={safePreviewAccountUrl(account, validDateKey(day) ? day : operationsToday)}
+              >
+                <span>{initialsFromName(account.name, "TA")}</span>
+                <strong>{account.name}</strong>
+                <em>{account.role}</em>
+              </a>
+            ))}
+          </div>
+          <div className="safe-preview-flow-grid" aria-label="Preview flow health">
+            {safePreviewFlowChecks.map((flow) => (
+              <article key={flow.id}>
+                <strong>{flow.name}</strong>
+                <p>{flow[role] || flow.owner}</p>
+                <span>Linked and role-scoped</span>
+              </article>
+            ))}
+          </div>
         </div>
-        <div className="safe-preview-account-strip" aria-label="Test account links">
-          {visibleAccounts.map((account) => (
-            <a
-              key={account.id}
-              className={`${currentAccountId === account.id ? "active" : ""} ${account.role}`}
-              href={safePreviewAccountUrl(account, validDateKey(day) ? day : operationsToday)}
-            >
-              <span>{initialsFromName(account.name, "TA")}</span>
-              <strong>{account.name}</strong>
-              <em>{account.role}</em>
-            </a>
-          ))}
-        </div>
-        <div className="safe-preview-flow-grid" aria-label="Preview flow health">
-          {safePreviewFlowChecks.map((flow) => (
-            <article key={flow.id}>
-              <strong>{flow.name}</strong>
-              <p>{flow[role] || flow.owner}</p>
-              <span>Linked and role-scoped</span>
-            </article>
-          ))}
-        </div>
-      </div>
+      </details>
     </section>
   );
 }
@@ -2963,23 +2966,25 @@ function SignedOutScreen({ onAuthenticated }) {
 
 function Screen(props) {
   const { section, role } = props;
-  if (section === "owner-dashboard") return <OwnerDashboard {...props} />;
-  if (section === "owner-schedule" || section === "manager-schedule") return <ScheduleBoard {...props} scope={role === "owner" ? "owner" : "manager"} />;
-  if (section === "owner-requests" || section === "manager-requests" || section === "employee-requests") return <RequestsWorkspace {...props} />;
-  if (section === "owner-events") return <EventsWorkspace {...props} />;
-  if (section === "owner-team" || section === "manager-team" || section === "employee-messages") return <TeamWorkspace {...props} />;
-  if (section === "owner-guide" || section === "manager-guide" || section === "employee-guide") return <GuideWorkspace {...props} />;
-  if (section === "owner-time" || section === "manager-time" || section === "employee-clock") return <TimeWorkspace {...props} />;
-  if (section === "owner-reports") return <ReportsWorkspace {...props} />;
-  if (section === "admin-command-review") return <CommandReviewWorkspace {...props} />;
-  if (section === "owner-settings") return <SettingsWorkspace {...props} />;
-  if (section === "manager-settings" || section === "employee-settings") return <RoleSettingsWorkspace {...props} />;
-  if (section === "owner-manager-dashboard") return <ManagerDashboard {...props} />;
-  if (section === "manager-dashboard") return <ManagerDashboard {...props} />;
-  if (section === "employee-dashboard") return <EmployeeDashboard {...props} />;
-  if (section === "employee-schedule") return <EmployeeSchedule {...props} />;
-  if (section === "employee-shifts") return <EmployeeOpenShifts {...props} />;
-  return <OwnerDashboard {...props} />;
+  const employeeSectionRole = role === "manager" && section.startsWith("employee-") ? "employee" : role;
+  const sectionProps = employeeSectionRole === role ? props : { ...props, role: employeeSectionRole, actingRole: role };
+  if (section === "owner-dashboard") return <OwnerDashboard {...sectionProps} />;
+  if (section === "owner-schedule" || section === "manager-schedule") return <ScheduleBoard {...sectionProps} scope={role === "owner" ? "owner" : "manager"} />;
+  if (section === "owner-requests" || section === "manager-requests" || section === "employee-requests") return <RequestsWorkspace {...sectionProps} />;
+  if (section === "owner-events") return <EventsWorkspace {...sectionProps} />;
+  if (section === "owner-team" || section === "manager-team" || section === "employee-messages") return <TeamWorkspace {...sectionProps} />;
+  if (section === "owner-guide" || section === "manager-guide" || section === "employee-guide") return <GuideWorkspace {...sectionProps} />;
+  if (section === "owner-time" || section === "manager-time" || section === "employee-clock") return <TimeWorkspace {...sectionProps} />;
+  if (section === "owner-reports") return <ReportsWorkspace {...sectionProps} />;
+  if (section === "admin-command-review") return <CommandReviewWorkspace {...sectionProps} />;
+  if (section === "owner-settings") return <SettingsWorkspace {...sectionProps} />;
+  if (section === "manager-settings" || section === "employee-settings") return <RoleSettingsWorkspace {...sectionProps} />;
+  if (section === "owner-manager-dashboard") return <ManagerDashboard {...sectionProps} />;
+  if (section === "manager-dashboard") return <ManagerDashboard {...sectionProps} />;
+  if (section === "employee-dashboard") return <EmployeeDashboard {...sectionProps} />;
+  if (section === "employee-schedule") return <EmployeeSchedule {...sectionProps} />;
+  if (section === "employee-shifts") return <EmployeeOpenShifts {...sectionProps} />;
+  return <OwnerDashboard {...sectionProps} />;
 }
 
 function RouteFocusBanner({ focus }) {

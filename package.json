@@ -7,13 +7,15 @@
     "dev": "concurrently -k -n command,vite \"npm run command:service\" \"vite --host 127.0.0.1\"",
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1",
-    "command:service": "node server/AdminReviewService.mjs",
-    "command:smoke": "node scripts/checkAdminReviewService.mjs",
-    "home:smoke": "node scripts/checkHomeButtons.mjs",
-    "safe-change:smoke": "node scripts/checkSafeChangePreview.mjs",
-    "preview-accounts:smoke": "node scripts/checkPreviewAccountFlows.mjs",
-    "performance:budget": "node scripts/checkPerformanceBudget.mjs",
-    "safe-change:check": "npm run build && npm run performance:budget && npm run home:smoke && npm run command:smoke && npm run safe-change:smoke && npm run preview-accounts:smoke"
+    "command:service": "node server/AdminReviewServer.mjs",
+    "command:smoke": "node scripts/testAdminReviewServer.mjs",
+    "home:smoke": "node scripts/testHomeButtons.mjs",
+    "safe-change:smoke": "node scripts/testSafePreview.mjs",
+    "preview-accounts:smoke": "node scripts/testPreviewAccounts.mjs",
+    "dashboard-layout:smoke": "node scripts/testDashboardLayout.mjs",
+    "all-sections:smoke": "node scripts/testAllRoleSections.mjs",
+    "performance:budget": "node scripts/testAppSizeAndSpeed.mjs",
+    "safe-change:check": "npm run build && npm run performance:budget && npm run home:smoke && npm run command:smoke && npm run safe-change:smoke && npm run preview-accounts:smoke && npm run dashboard-layout:smoke && npm run all-sections:smoke"
   },
   "dependencies": {
     "@openai/agents": "^0.12.0",

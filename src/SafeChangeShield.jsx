@@ -1,6 +1,6 @@
 import React from "react";
 
-export class SafeChangeGuard extends React.Component {
+export class SafeChangeShield extends React.Component {
   constructor(props) {
     super(props);
     this.state = { error: null };
