@@ -38,6 +38,13 @@ import {
   X,
 } from "@phosphor-icons/react";
 import { isSupabaseConfigured, supabase } from "./lib/SupabaseConnection.js";
+import {
+  safePreviewAccounts,
+  safePreviewAccountUrl,
+  safePreviewFlowChecks,
+  safePreviewInviteRecords,
+  safePreviewTeamAccounts,
+} from "./SafePreviewTestData.js";
 
 const mainWorkspaceStorageKey = "workforce-command-center-v9";
 const safePreviewStorageKey = "workforce-command-center-safe-preview-v1";
@@ -551,12 +558,20 @@ function isSafeChangePreview() {
   return params.get("preview") === "safe-change" || params.get("sandbox") === "true";
 }
 
+function currentSafePreviewAccountId() {
+  if (!isSafeChangePreview()) return "";
+  return new URLSearchParams(window.location.search).get("account") || "";
+}
+
 function workspaceStorageKey() {
   return isSafeChangePreview() ? safePreviewStorageKey : mainWorkspaceStorageKey;
 }
 
 function preserveSafeChangePreview(params) {
-  if (isSafeChangePreview()) params.set("preview", "safe-change");
+  if (!isSafeChangePreview()) return;
+  params.set("preview", "safe-change");
+  const accountId = currentSafePreviewAccountId();
+  if (accountId) params.set("account", accountId);
 }
 
 function initialSectionFromUrl(role) {
@@ -657,6 +672,50 @@ function normalizeState(state) {
   };
 }
 
+function mergeUniqueBy(items, additions, keyFor) {
+  const seen = new Set(items.map(keyFor).filter(Boolean));
+  const merged = [...items];
+  additions.forEach((item) => {
+    const key = keyFor(item);
+    if (key && seen.has(key)) return;
+    if (key) seen.add(key);
+    merged.push(item);
+  });
+  return merged;
+}
+
+function ensureSafePreviewSeed(state) {
+  const teamAccounts = mergeUniqueBy(
+    Array.isArray(state.teamAccounts) ? state.teamAccounts : [],
+    safePreviewTeamAccounts(),
+    (account) => String(account.email || account.id || "").toLowerCase(),
+  );
+  const teamInvites = mergeUniqueBy(
+    Array.isArray(state.teamInvites) ? state.teamInvites : [],
+    safePreviewInviteRecords(),
+    (invite) => String(invite.email || invite.code || "").toLowerCase(),
+  );
+  const auditLog = Array.isArray(state.auditLog) ? state.auditLog : [];
+  const hasPreviewAudit = auditLog.some((entry) => entry.action === "safe_preview.seeded");
+  return {
+    ...state,
+    teamAccounts,
+    teamInvites,
+    safePreviewAccounts,
+    safePreviewFlowChecks,
+    auditLog: hasPreviewAudit
+      ? auditLog
+      : [{
+        id: "safe-preview-seeded",
+        time: "Safe preview",
+        actor: "System",
+        action: "safe_preview.seeded",
+        target: "10 test accounts",
+        detail: "Safe Change Preview seeded with owner, manager, and employee test accounts.",
+      }, ...auditLog],
+  };
+}
+
 function ensureSchedulePlanningSeed(state) {
   const shifts = Array.isArray(state.shifts) ? state.shifts : baseState.shifts;
   const hasFutureSchedule = shifts.some((shift) => validDateKey(shift.date) && shift.date !== operationsToday);
@@ -700,9 +759,11 @@ function ensureSchedulePlanningSeed(state) {
 function loadState() {
   try {
     const stored = JSON.parse(localStorage.getItem(workspaceStorageKey()));
-    return stored ? normalizeState(stored) : normalizeState(baseState);
+    const normalized = stored ? normalizeState(stored) : normalizeState(baseState);
+    return isSafeChangePreview() ? ensureSafePreviewSeed(normalized) : normalized;
   } catch {
-    return normalizeState(baseState);
+    const normalized = normalizeState(baseState);
+    return isSafeChangePreview() ? ensureSafePreviewSeed(normalized) : normalized;
   }
 }
 
@@ -1364,19 +1425,19 @@ export function App() {
 
   function resetSafePreview() {
     localStorage.removeItem(safePreviewStorageKey);
-    setData(normalizeState(baseState));
+    setData(ensureSafePreviewSeed(normalizeState(baseState)));
     setToast("Safe preview reset. Main app data was not changed.");
   }
 
   function copyMainDataToSafePreview() {
     try {
       const stored = JSON.parse(localStorage.getItem(mainWorkspaceStorageKey));
-      const nextData = stored ? normalizeState(stored) : normalizeState(baseState);
+      const nextData = ensureSafePreviewSeed(stored ? normalizeState(stored) : normalizeState(baseState));
       localStorage.setItem(safePreviewStorageKey, JSON.stringify(nextData));
       setData(nextData);
       setToast("Main app data copied into the safe preview.");
     } catch {
-      const nextData = normalizeState(baseState);
+      const nextData = ensureSafePreviewSeed(normalizeState(baseState));
       localStorage.setItem(safePreviewStorageKey, JSON.stringify(nextData));
       setData(nextData);
       setToast("Safe preview started with clean demo data.");
@@ -1506,6 +1567,9 @@ export function App() {
 
         {safePreview && (
           <SafeChangePreviewBar
+            data={data}
+            role={role}
+            day={day}
             onReset={resetSafePreview}
             onCopyMain={copyMainDataToSafePreview}
           />
@@ -1553,26 +1617,76 @@ export function App() {
   );
 }
 
-function SafeChangePreviewBar({ onReset, onCopyMain }) {
+function SafeChangePreviewBar({ data, role, day, onReset, onCopyMain }) {
   const currentParams = new URLSearchParams(window.location.search);
   const exitParams = new URLSearchParams(currentParams);
   exitParams.delete("preview");
   exitParams.delete("sandbox");
   const exitUrl = `${window.location.pathname}?${exitParams.toString()}`;
+  const accounts = Array.isArray(data?.safePreviewAccounts) ? data.safePreviewAccounts : safePreviewAccounts;
+  const ownerCount = accounts.filter((account) => account.role === "owner").length;
+  const managerCount = accounts.filter((account) => account.role === "manager").length;
+  const employeeCount = accounts.filter((account) => account.role === "employee").length;
+  const visibleAccounts = accounts.filter((account) => (
+    role === "owner" ? true : role === "manager" ? account.role !== "owner" : account.role === "employee"
+  ));
+  const currentAccountId = currentSafePreviewAccountId();
+  const labTitle = role === "owner"
+    ? "10 test accounts and linked flows"
+    : role === "manager"
+      ? "Manager and employee test paths"
+      : "Employee-only test paths";
 
   return (
-    <section className="safe-change-preview-bar" aria-label="Safe change preview">
-      <div className="safe-change-preview-copy">
-        <ShieldCheck size={20} weight="fill" />
-        <div>
-          <strong>Safe Change Preview</strong>
-          <span>Testing copy only. Normal owner, manager, and employee data stays protected.</span>
+    <section className="safe-change-preview-panel" aria-label="Safe change preview">
+      <div className="safe-change-preview-bar">
+        <div className="safe-change-preview-copy">
+          <ShieldCheck size={20} weight="fill" />
+          <div>
+            <strong>Safe Change Preview</strong>
+            <span>Testing copy only. Normal owner, manager, and employee data stays protected.</span>
+          </div>
+        </div>
+        <div className="safe-change-preview-actions">
+          <button type="button" onClick={onCopyMain}>Copy Main Data</button>
+          <button type="button" onClick={onReset}>Reset Preview</button>
+          <a href={exitUrl}>Exit Preview</a>
         </div>
       </div>
-      <div className="safe-change-preview-actions">
-        <button type="button" onClick={onCopyMain}>Copy Main Data</button>
-        <button type="button" onClick={onReset}>Reset Preview</button>
-        <a href={exitUrl}>Exit Preview</a>
+      <div className="safe-preview-test-lab">
+        <div className="safe-preview-lab-head">
+          <div>
+            <p className="eyebrow">Test lab</p>
+            <h3>{labTitle}</h3>
+          </div>
+          <div className="safe-preview-lab-metrics" aria-label="Safe preview account counts">
+            <span><strong>{ownerCount}</strong> owner</span>
+            <span><strong>{managerCount}</strong> managers</span>
+            <span><strong>{employeeCount}</strong> employees</span>
+          </div>
+        </div>
+        <div className="safe-preview-account-strip" aria-label="Test account links">
+          {visibleAccounts.map((account) => (
+            <a
+              key={account.id}
+              className={`${currentAccountId === account.id ? "active" : ""} ${account.role}`}
+              href={safePreviewAccountUrl(account, validDateKey(day) ? day : operationsToday)}
+            >
+              <span>{initialsFromName(account.name, "TA")}</span>
+              <strong>{account.name}</strong>
+              <em>{account.role}</em>
+            </a>
+          ))}
+        </div>
+        <div className="safe-preview-flow-grid" aria-label="Preview flow health">
+          {safePreviewFlowChecks.map((flow) => (
+            <article key={flow.id}>
+              <strong>{flow.name}</strong>
+              <p>{flow[role] || flow.owner}</p>
+              <span>Linked and role-scoped</span>
+            </article>
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -1589,7 +1703,26 @@ function initialsFromName(name, fallback = "OS") {
   return parts.slice(0, 2).map((part) => part[0]?.toUpperCase()).join("") || fallback;
 }
 
+function safePreviewAccountForRole(role, data) {
+  if (!isSafeChangePreview()) return null;
+  const accountId = currentSafePreviewAccountId();
+  if (!accountId) return null;
+  const accounts = Array.isArray(data?.safePreviewAccounts) ? data.safePreviewAccounts : safePreviewAccounts;
+  const account = accounts.find((entry) => entry.id === accountId && entry.role === role);
+  if (!account) return null;
+  return {
+    name: account.name,
+    email: account.email,
+    initials: initialsFromName(account.name, role === "owner" ? "OS" : role === "manager" ? "MG" : "EM"),
+    title: `${account.title} test account`,
+    location: account.locationId === "all" ? getSettingsProfile(data).displayName : locationName(account.locationId),
+    rate: account.hourlyRate || null,
+  };
+}
+
 function accountProfileForRole(role, data) {
+  const previewAccount = safePreviewAccountForRole(role, data);
+  if (previewAccount) return previewAccount;
   const profile = getSettingsProfile(data);
   if (role === "owner") {
     return {

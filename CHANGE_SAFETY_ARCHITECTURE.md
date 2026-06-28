@@ -6,6 +6,8 @@ This app now has a safer way to test changes before treating them as part of the
 
 - **Safe Change Preview** opens the app as a test copy.
 - Preview edits use a separate saved-data area, so normal prototype data is not overwritten.
+- Preview includes a **Test Lab** with 10 local accounts: 1 owner, 3 managers, and 6 employees.
+- Each test account has a direct role-safe link so owner, manager, and employee flows can be checked quickly.
 - The app entrance has a **Safe Change Guard**. If a screen crashes, it shows a recovery screen instead of a blank page.
 - A safety check command loads owner, manager, employee, signed-out, admin review, and safe preview screens before a change is accepted.
 
@@ -35,6 +37,8 @@ npm run safe-change:check
 - Owner home and key owner routes still load.
 - Manager home and key manager routes still load.
 - Employee home and key employee routes still load.
+- Ten local preview accounts exist and render through the correct role-safe screen.
+- The built app stays under the current performance budget so test changes do not quietly add lag.
 - Signed-out state does not show Owner, Manager, or Employee role buttons.
 - Admin command review stays platform-admin-only.
 - Safe Change Preview loads for owner, manager, and employee.
@@ -46,6 +50,7 @@ npm run safe-change:check
 - Keep risky changes behind a preview or focused panel until the checks pass.
 - Touch one workflow at a time when possible: dashboard, schedule, team, settings, time, events, guide, or reports.
 - Do not let a preview-only idea become the normal screen until the safety check passes.
+- Use local preview accounts before creating real Supabase Auth users.
 - If a change crashes the app, use the recovery screen and fix it before continuing.
 
 ## Current Boundaries

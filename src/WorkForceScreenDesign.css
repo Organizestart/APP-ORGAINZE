@@ -1131,12 +1131,17 @@ textarea {
   background: transparent;
 }
 
+.safe-change-preview-panel {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
 .safe-change-preview-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 14px;
-  margin-bottom: 16px;
   padding: 12px 14px;
   border: 1px solid #c5d9cd;
   border-radius: 8px;
@@ -1198,6 +1203,165 @@ textarea {
 .safe-change-preview-actions button:first-child {
   background: var(--green);
   color: #ffffff;
+}
+
+.safe-preview-test-lab {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--faint);
+  border-radius: 8px;
+  background: var(--panel);
+  box-shadow: 0 10px 24px rgba(33, 42, 38, 0.06);
+}
+
+.safe-preview-lab-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.safe-preview-lab-head h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.2;
+}
+
+.safe-preview-lab-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.safe-preview-lab-metrics span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 31px;
+  padding: 0 9px;
+  border: 1px solid #cbded2;
+  border-radius: 999px;
+  background: #f4fbf7;
+  color: #52625c;
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.safe-preview-lab-metrics strong {
+  color: var(--green);
+  font-size: 0.94rem;
+}
+
+.safe-preview-account-strip {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(112px, 1fr));
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: thin;
+}
+
+.safe-preview-account-strip a {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  grid-template-areas:
+    "avatar name"
+    "avatar role";
+  align-items: center;
+  gap: 2px 8px;
+  min-width: 142px;
+  min-height: 54px;
+  padding: 8px;
+  border: 1px solid var(--faint);
+  border-radius: 8px;
+  background: #fffdf8;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.safe-preview-account-strip a:hover,
+.safe-preview-account-strip a.active {
+  border-color: #9ac3ad;
+  background: #f1faf5;
+}
+
+.safe-preview-account-strip a span {
+  grid-area: avatar;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: var(--green-soft);
+  color: var(--green);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.safe-preview-account-strip a.manager span {
+  background: var(--blue-soft);
+  color: var(--blue);
+}
+
+.safe-preview-account-strip a.employee span {
+  background: #f7e6d9;
+  color: #8b4b25;
+}
+
+.safe-preview-account-strip strong {
+  grid-area: name;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 0.82rem;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.safe-preview-account-strip em {
+  grid-area: role;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-style: normal;
+  font-weight: 750;
+  text-transform: capitalize;
+}
+
+.safe-preview-flow-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.safe-preview-flow-grid article {
+  display: grid;
+  gap: 6px;
+  min-height: 112px;
+  padding: 10px;
+  border: 1px solid var(--faint);
+  border-radius: 8px;
+  background: var(--panel-soft);
+}
+
+.safe-preview-flow-grid strong {
+  font-size: 0.84rem;
+  line-height: 1.2;
+}
+
+.safe-preview-flow-grid p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
+.safe-preview-flow-grid span {
+  align-self: end;
+  color: var(--green);
+  font-size: 0.72rem;
+  font-weight: 850;
 }
 
 .safe-change-crash-screen {
@@ -1299,6 +1463,15 @@ textarea {
   .safe-change-preview-actions button,
   .safe-change-preview-actions a {
     flex: 1 1 150px;
+  }
+
+  .safe-preview-lab-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .safe-preview-flow-grid {
+    grid-template-columns: 1fr;
   }
 }
 

@@ -77,6 +77,8 @@ The home dashboard must stay action-first. If a card, button, or metric is visib
    - Signed-out screen stays neutral and does not expose role choices.
    - The signed-in shell now shows a current-role account badge instead of cross-role preview buttons.
    - Signed-out now opens a full account access page with login, sign-up, email-code sign-in, and forgot-password states.
+   - Done for Safe Preview: the app now has a ten-account local test lab with 1 owner, 3 managers, and 6 employees. Each account opens the correct role-safe screen before real Supabase Auth users are created.
+   - Done for Safe Preview checks: account-flow smoke tests verify managers do not receive owner-only surfaces and employees do not receive manager, invite, billing, report, event, or platform-admin controls.
 
 4. Organization Tools
    - Schedule assistant for gaps, open shifts, and likely coverage candidates.
@@ -118,6 +120,7 @@ The home dashboard must stay action-first. If a card, button, or metric is visib
    - Done for role-safe home action contracts: manager home now verifies 5 manager-safe targets, employee home verifies 7 employee-safe targets, and the smoke test blocks owner-only destinations from lower-authority home screens.
    - Done for full home target allowlists: the smoke test now extracts every rendered home action target and validates all owner, manager, employee, and signed-out targets against role-safe allowlists.
    - Done for home target resolution: each unique rendered home action target now resolves to a real route or modal implementation; current coverage resolves 14 owner, 5 manager, and 7 employee targets.
+   - Done for safe-change gate: `npm run safe-change:check` now covers build, performance budget, home action wiring, command service checks, Safe Preview rendering, and ten-account role-boundary flows.
 
 ## Near-Term Build Sequence
 

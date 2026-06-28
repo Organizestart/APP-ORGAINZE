@@ -11,7 +11,9 @@
     "command:smoke": "node scripts/checkAdminReviewService.mjs",
     "home:smoke": "node scripts/checkHomeButtons.mjs",
     "safe-change:smoke": "node scripts/checkSafeChangePreview.mjs",
-    "safe-change:check": "npm run build && npm run home:smoke && npm run command:smoke && npm run safe-change:smoke"
+    "preview-accounts:smoke": "node scripts/checkPreviewAccountFlows.mjs",
+    "performance:budget": "node scripts/checkPerformanceBudget.mjs",
+    "safe-change:check": "npm run build && npm run performance:budget && npm run home:smoke && npm run command:smoke && npm run safe-change:smoke && npm run preview-accounts:smoke"
   },
   "dependencies": {
     "@openai/agents": "^0.12.0",

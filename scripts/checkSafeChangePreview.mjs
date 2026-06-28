@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { performance } from "node:perf_hooks";
 import { readFile } from "node:fs/promises";
 import { createServer } from "vite";
+import { safePreviewAccounts } from "../src/SafePreviewTestData.js";
 
 const storage = new Map();
 const mainStorageKey = "workforce-command-center-v9";
@@ -68,6 +69,9 @@ async function renderScreen(server, search) {
 }
 
 async function run() {
+  if (safePreviewAccounts.length !== 10) {
+    throw new Error(`Safe preview should have 10 test accounts, found ${safePreviewAccounts.length}`);
+  }
   storage.set(mainStorageKey, JSON.stringify({ settingsProfile: { displayName: "Main Workspace Marker" } }));
   storage.set(safePreviewStorageKey, JSON.stringify({ settingsProfile: { displayName: "Safe Preview Marker" } }));
   const appSource = await readFile("src/WorkForceCommandCenter.jsx", "utf8");
@@ -88,20 +92,20 @@ async function run() {
       {
         name: "Owner safe preview",
         search: "?preview=safe-change&role=owner&section=owner-dashboard",
-        includes: ["Safe Change Preview", "Testing copy only", "Coverage Today", "Daily Operations"],
+        includes: ["Safe Change Preview", "Testing copy only", "10 test accounts and linked flows", "Coverage Today", "Daily Operations"],
         excludes: ["Command Review"],
       },
       {
         name: "Manager safe preview",
         search: "?preview=safe-change&role=manager&section=manager-dashboard",
-        includes: ["Safe Change Preview", "Manager Coverage Board", "Team Handoff"],
+        includes: ["Safe Change Preview", "Manager and employee test paths", "Manager Coverage Board", "Team Handoff"],
         excludes: ["Billing Seats", "Settings & Billing", "Command Review"],
       },
       {
         name: "Employee safe preview",
         search: "?preview=safe-change&role=employee&section=employee-dashboard",
-        includes: ["Safe Change Preview", "Next shift", "Shift Readiness"],
-        excludes: ["Manager Actions", "Billing Seats", "Command Review"],
+        includes: ["Safe Change Preview", "Employee-only test paths", "Next shift", "Shift Readiness"],
+        excludes: ["Manager Actions", "Billing Seats", "Command Review", "10 test accounts and linked flows"],
       },
     ];
 
@@ -118,6 +122,7 @@ async function run() {
 
     console.log(JSON.stringify({
       safeChangePreview: "passed",
+      testAccounts: safePreviewAccounts.length,
       mainStorageProtected: storage.has(mainStorageKey),
       previewStorageAvailable: storage.has(safePreviewStorageKey),
       screens: results,
