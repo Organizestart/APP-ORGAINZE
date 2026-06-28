@@ -5315,7 +5315,9 @@ function ScheduleBoard({ data, shifts, scope, openModal, patchData, go, routeFoc
             embedded
           />
           {schedulePeriod === "day" && displayShifts.length ? (
-            <Timeline shifts={displayShifts} selectedShiftId={selectedShift?.id} onShiftClick={(shift) => setSelectedShiftId(shift.id)} bounds={timelineBounds} />
+            <div className="schedule-board-scroll" aria-label="Scrollable day schedule board">
+              <Timeline shifts={displayShifts} selectedShiftId={selectedShift?.id} onShiftClick={(shift) => setSelectedShiftId(shift.id)} bounds={timelineBounds} />
+            </div>
           ) : schedulePeriod !== "day" ? (
             <ScheduleRangeBoard
               period={schedulePeriod}

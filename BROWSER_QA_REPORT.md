@@ -17,6 +17,7 @@ Passed:
 - Manager and employee dashboard action paths stayed contained, showed four role-safe workflow buttons, and did not create page-level horizontal overflow.
 - Manager and employee dashboard action labels stayed readable instead of being cut off inside tight cards.
 - Manager dashboard KPI cards stayed readable after the no-icon metric layout fix; the card text no longer collapses into a narrow icon column.
+- Manager schedule board toolbar and card stayed contained at the dashboard reference size; the timeline width stays inside the schedule board instead of widening the whole workspace.
 
 Observed and accepted:
 
@@ -30,6 +31,7 @@ Observed and accepted:
 | Owner dashboard safe preview | Passed | [owner-dashboard-safe-preview.png](browser-qa-screenshots/owner-dashboard-safe-preview.png) |
 | Owner team safe preview | Passed | [owner-team-safe-preview.png](browser-qa-screenshots/owner-team-safe-preview.png) |
 | Manager schedule safe preview | Passed | [manager-schedule-safe-preview.png](browser-qa-screenshots/manager-schedule-safe-preview.png) |
+| Manager schedule contained desktop | Passed | [manager-schedule-contained-scroll-desktop.png](browser-qa-screenshots/manager-schedule-contained-scroll-desktop.png) |
 | Employee dashboard safe preview | Passed | [employee-dashboard-safe-preview.png](browser-qa-screenshots/employee-dashboard-safe-preview.png) |
 | Manager dashboard action path | Passed | [manager-dashboard-action-path-view.png](browser-qa-screenshots/manager-dashboard-action-path-view.png) |
 | Employee dashboard action path | Passed | [employee-dashboard-action-path-view.png](browser-qa-screenshots/employee-dashboard-action-path-view.png) |

@@ -2286,9 +2286,11 @@ textarea {
 
 .schedule-control-strip {
   display: grid;
-  grid-template-columns: minmax(175px, 0.75fr) minmax(310px, 1.35fr) minmax(230px, 0.95fr) minmax(142px, 0.65fr) minmax(210px, 0.9fr);
+  grid-template-columns: minmax(150px, 0.8fr) minmax(260px, 1.35fr) minmax(200px, 0.95fr) minmax(120px, 0.65fr) minmax(170px, 0.8fr);
   align-items: end;
   gap: 10px;
+  min-width: 0;
+  max-width: 100%;
   padding: 12px;
   border: 1px solid var(--faint);
   border-radius: 8px;
@@ -2297,6 +2299,7 @@ textarea {
 }
 
 .schedule-board-toolbar {
+  width: 100%;
   margin-bottom: 12px;
   background: #fbfaf4;
   box-shadow: none;
@@ -2333,6 +2336,7 @@ textarea {
 .schedule-control-periods {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
+  min-width: 0;
   width: 100%;
 }
 
@@ -3690,6 +3694,42 @@ textarea {
 
 .schedule-board-actions {
   justify-content: flex-end;
+}
+
+.schedule-board-scroll {
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-inline: contain;
+  padding-bottom: 3px;
+  scrollbar-gutter: stable;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+  scrollbar-width: thin;
+}
+
+.schedule-board-scroll::-webkit-scrollbar {
+  height: 10px;
+}
+
+.schedule-board-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.schedule-board-scroll::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background: var(--scrollbar-thumb);
+  background-clip: content-box;
+}
+
+.schedule-board-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+  background-clip: content-box;
+}
+
+.schedule-board-scroll .timeline {
+  min-width: min(926px, 100%);
 }
 
 .schedule-role-filter {
