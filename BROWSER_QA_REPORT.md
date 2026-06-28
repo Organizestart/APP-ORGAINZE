@@ -16,6 +16,7 @@ Passed:
 - Safe Preview stayed visible on preview routes.
 - Manager and employee dashboard action paths stayed contained, showed four role-safe workflow buttons, and did not create page-level horizontal overflow.
 - Manager and employee dashboard action labels stayed readable instead of being cut off inside tight cards.
+- Manager dashboard KPI cards stayed readable after the no-icon metric layout fix; the card text no longer collapses into a narrow icon column.
 
 Observed and accepted:
 

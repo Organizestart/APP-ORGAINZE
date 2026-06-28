@@ -9212,6 +9212,7 @@ function homeActionTarget(target) {
 }
 
 function Metric({ label, value, detail, state, icon: Icon, onClick, actionTarget }) {
+  const metricClassName = `metric ${Icon ? "" : "no-icon"} ${state || ""}`.trim();
   const content = (
     <>
       {Icon && (
@@ -9228,13 +9229,13 @@ function Metric({ label, value, detail, state, icon: Icon, onClick, actionTarget
   );
   if (onClick) {
     return (
-      <button className={`metric metric-action ${state || ""}`} type="button" onClick={onClick} {...homeActionTarget(actionTarget)}>
+      <button className={`${metricClassName} metric-action`} type="button" onClick={onClick} {...homeActionTarget(actionTarget)}>
         {content}
       </button>
     );
   }
   return (
-    <article className={`metric ${state || ""}`}>
+    <article className={metricClassName}>
       {content}
     </article>
   );

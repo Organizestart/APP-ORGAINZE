@@ -126,4 +126,6 @@ Architecture boundary rule: keep `npm run architecture-boundaries:smoke` passing
 
 Dashboard first-use clarity rule: do not add a separate tutorial page for normal owner, manager, or employee work. Reduce confusion by adding compact role-safe action paths near the top of home screens, using real workflow buttons and dated context. Manager paths must stay manager-safe; employee paths must stay employee-only.
 
+Dashboard metric readability rule: KPI and metric cards must keep text in a real content column. If a card has no icon, do not reserve an empty icon column; use a no-icon layout so labels, numbers, and details stay readable instead of squeezing into a tiny strip.
+
 Safe change performance rule: safe-preview changes must keep the app under the current performance budget. Run `npm run safe-change:check` after broad UI work; it includes build, route smoke tests, account role tests, command-service checks, and bundle-size budget checks so new experiments do not add avoidable lag.
