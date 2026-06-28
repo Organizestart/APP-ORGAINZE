@@ -124,12 +124,12 @@ function assertCssVisualGuards(css) {
 
 async function renderScreen(server, search) {
   installBrowserStubs(search);
-  const module = await server.ssrLoadModule("/src/AllWorkForceScreens.jsx");
+  const module = await server.ssrLoadModule("/src/workforce-app-screens.jsx");
   return renderToStaticMarkup(React.createElement(module.App));
 }
 
 async function run() {
-  const css = await readFile("src/AppVisualDesign.css", "utf8");
+  const css = await readFile("src/app-look-and-layout.css", "utf8");
   assertCssVisualGuards(css);
 
   const server = await createServer({

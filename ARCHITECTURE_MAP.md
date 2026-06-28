@@ -6,16 +6,16 @@ This is the plain-English map for how the prototype is organized so it can keep 
 
 | Area | File | Job |
 | --- | --- | --- |
-| Browser start | `src/AppStartsHere.jsx` | Opens the app, loads the design file, and wraps the app in the crash shield. |
-| Crash shield | `src/BlankScreenSafety.jsx` | Shows a recovery screen if a test screen crashes instead of leaving a blank page. |
-| Main workspace | `src/AllWorkForceScreens.jsx` | Holds the visible owner, manager, employee, schedule, team, guide, time, events, and settings screens. |
-| Design | `src/AppVisualDesign.css` | Controls spacing, layout, colors, text sizing, scrolling, and card containment. |
-| Role access | `src/RoleAccessRules.js` | Keeps owner, manager, employee, and platform-admin section access in one place. |
-| Saved-data recovery | `src/FixSavedAppData.js` | Repairs broken or older local prototype data before the app renders. |
-| Safe test accounts | `src/SafePreviewAccounts.js` | Holds the ten local test accounts, invite records, and role-safe preview links. |
-| Dashboard action path | `src/DashboardNextSteps.jsx` | Reusable role-safe action strip for home screens so users see the next workflow without a separate tutorial. |
-| Supabase connection | `src/lib/DatabaseConnection.js` | Connects to Supabase only when public project keys are provided. |
-| Admin review service | `server/PlatformAdminReviewService.mjs` | Runs the platform-admin-only command review checks and protected command endpoints. |
+| Browser start | `src/start-the-app.jsx` | Opens the app, loads the design file, and wraps the app in the crash shield. |
+| Crash shield | `src/protect-from-blank-screen.jsx` | Shows a recovery screen if a test screen crashes instead of leaving a blank page. |
+| Main workspace | `src/workforce-app-screens.jsx` | Holds the visible owner, manager, employee, schedule, team, guide, time, events, and settings screens. |
+| Design | `src/app-look-and-layout.css` | Controls spacing, layout, colors, text sizing, scrolling, and card containment. |
+| Role access | `src/who-can-open-what.js` | Keeps owner, manager, employee, and platform-admin section access in one place. |
+| Saved-data recovery | `src/repair-saved-app-data.js` | Repairs broken or older local prototype data before the app renders. |
+| Safe test accounts | `src/safe-preview-test-accounts.js` | Holds the ten local test accounts, invite records, and role-safe preview links. |
+| Dashboard action path | `src/dashboard-next-actions.jsx` | Reusable role-safe action strip for home screens so users see the next workflow without a separate tutorial. |
+| Supabase connection | `src/connect-to-supabase.js` | Connects to Supabase only when public project keys are provided. |
+| Admin review service | `server/protected-admin-review-service.mjs` | Runs the platform-admin-only command review checks and protected command endpoints. |
 
 ## Safety Checks
 
@@ -42,12 +42,12 @@ Current checks cover:
 
 ## Scaling Rules
 
-- Keep role authority in `src/RoleAccessRules.js`.
-- Keep saved-data repair in `src/FixSavedAppData.js`.
-- Keep ten-account preview data in `src/SafePreviewAccounts.js`.
-- Keep reusable dashboard action paths in `src/DashboardNextSteps.jsx`.
-- Keep Supabase connection setup in `src/lib/DatabaseConnection.js`.
-- Keep crash recovery in `src/BlankScreenSafety.jsx`.
-- Keep platform-admin command review in `server/PlatformAdminReviewService.mjs`.
+- Keep role authority in `src/who-can-open-what.js`.
+- Keep saved-data repair in `src/repair-saved-app-data.js`.
+- Keep ten-account preview data in `src/safe-preview-test-accounts.js`.
+- Keep reusable dashboard action paths in `src/dashboard-next-actions.jsx`.
+- Keep Supabase connection setup in `src/connect-to-supabase.js`.
+- Keep crash recovery in `src/protect-from-blank-screen.jsx`.
+- Keep platform-admin command review in `server/protected-admin-review-service.mjs`.
 - Keep new safety checks named `scripts/check-*.mjs` and list them in `FILE_GUIDE.md`.
-- Keep `src/AllWorkForceScreens.jsx` focused on screens and workflow wiring. If it grows too much, extract the next stable rule set before adding more large screens.
+- Keep `src/workforce-app-screens.jsx` focused on screens and workflow wiring. If it grows too much, extract the next stable rule set before adding more large screens.

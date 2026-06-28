@@ -162,8 +162,8 @@ function lineHasAllowedCommandFetch(line) {
 async function collectSourceSnapshot(appSnapshot = {}) {
   const [packageJson, appSource, cssSource, agentNotes, qaNotes, viteConfig] = await Promise.all([
     readText("package.json", 8000),
-    readText("src/AllWorkForceScreens.jsx", 28000),
-    readText("src/AppVisualDesign.css", 18000),
+    readText("src/workforce-app-screens.jsx", 28000),
+    readText("src/app-look-and-layout.css", 18000),
     readText("AGENTS.md", 6000).catch(() => ""),
     readText("design-qa.md", 12000).catch(() => ""),
     readText("vite.config.mjs", 4000),
@@ -184,15 +184,15 @@ async function collectSourceSnapshot(appSnapshot = {}) {
       "vite.config.mjs": viteConfig,
       "AGENTS.md": agentNotes,
       "design-qa.md": qaNotes,
-      "src/AllWorkForceScreens.jsx:nav-and-routing": truncate(`${navMatch?.[0] || ""}\n\n${screenMatch?.[0] || ""}`, 16000),
-      "src/AllWorkForceScreens.jsx:settings-sample": truncate(settingsMatch?.[0] || "", 9000),
-      "src/AppVisualDesign.css:tokens-and-layout": cssSource,
+      "src/workforce-app-screens.jsx:nav-and-routing": truncate(`${navMatch?.[0] || ""}\n\n${screenMatch?.[0] || ""}`, 16000),
+      "src/workforce-app-screens.jsx:settings-sample": truncate(settingsMatch?.[0] || "", 9000),
+      "src/app-look-and-layout.css:tokens-and-layout": cssSource,
     },
   };
 }
 
 async function sourceSafetyCheck() {
-  const files = ["src/AllWorkForceScreens.jsx", "src/AppStartsHere.jsx", "src/AppVisualDesign.css", "vite.config.mjs"];
+  const files = ["src/workforce-app-screens.jsx", "src/start-the-app.jsx", "src/app-look-and-layout.css", "vite.config.mjs"];
   const findings = [];
 
   for (const file of files) {
@@ -226,7 +226,7 @@ async function sourceSafetyCheck() {
 }
 
 async function roleBoundaryCheck() {
-  const source = await readText("src/AllWorkForceScreens.jsx", 90000);
+  const source = await readText("src/workforce-app-screens.jsx", 90000);
   const ownerNav = source.match(/const ownerNav = \[[\s\S]*?\];/)?.[0] || "";
   const platformAdminNav = source.match(/const platformAdminNav = \[[\s\S]*?\];/)?.[0] || "";
   const managerNav = source.match(/const managerNav = \[[\s\S]*?\];/)?.[0] || "";
@@ -250,7 +250,7 @@ async function roleBoundaryCheck() {
 }
 
 async function dashboardActionCheck() {
-  const appSource = await readText("src/AllWorkForceScreens.jsx", 900000);
+  const appSource = await readText("src/workforce-app-screens.jsx", 900000);
   const homeSmokeSource = await readText("scripts/check-home-buttons.mjs", 120000);
   const source = `${appSource}\n${homeSmokeSource}`;
   const requirements = [
@@ -1025,7 +1025,7 @@ function deterministicFixProposals(report, selectedIssueIds = []) {
       patchBrief: issue.safeFix
         ? `Prepare a small scoped patch for ${issue.affectedArea}. Verify with npm run build and command tests before applying.`
         : `Do not auto-apply. Review product impact and platform-admin approval before changing ${issue.affectedArea}.`,
-      files: issue.safeFix ? ["src/AllWorkForceScreens.jsx", "src/AppVisualDesign.css"] : [],
+      files: issue.safeFix ? ["src/workforce-app-screens.jsx", "src/app-look-and-layout.css"] : [],
     }));
 }
 

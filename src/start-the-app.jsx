@@ -1,8 +1,8 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import { App } from "./AllWorkForceScreens.jsx";
-import { BlankScreenSafety } from "./BlankScreenSafety.jsx";
-import "./AppVisualDesign.css";
+import { App } from "./workforce-app-screens.jsx";
+import { BlankScreenSafety } from "./protect-from-blank-screen.jsx";
+import "./app-look-and-layout.css";
 
 createRoot(document.getElementById("root")).render(
   <React.StrictMode>

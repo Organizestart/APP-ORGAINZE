@@ -24,7 +24,7 @@ async function run() {
   });
 
   try {
-    const module = await server.ssrLoadModule("/src/AllWorkForceScreens.jsx");
+    const module = await server.ssrLoadModule("/src/workforce-app-screens.jsx");
     const runAction = module.runWorkflowActionForTest;
     assert(typeof runAction === "function", "Workflow action test runner is not exported.");
 

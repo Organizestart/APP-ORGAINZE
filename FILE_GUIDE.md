@@ -6,16 +6,16 @@ Files that start with `check-` are safety checks. They do not change the app; th
 
 | File | Plain-English meaning |
 | --- | --- |
-| `src/AppStartsHere.jsx` | Starts the app in the browser. |
-| `src/BlankScreenSafety.jsx` | Catches screen crashes so a broken test does not become a blank page. |
-| `src/SafePreviewAccounts.js` | Ten local test accounts and flow checks used only in Safe Change Preview. |
-| `src/RoleAccessRules.js` | Keeps the owner, manager, employee, and platform-admin section access rules in one clear place. |
-| `src/FixSavedAppData.js` | Repairs broken or older saved prototype data before screens use it. |
-| `src/AllWorkForceScreens.jsx` | The main WorkForce app screens, buttons, dashboards, and workflows. |
-| `src/DashboardNextSteps.jsx` | Shared top-of-dashboard action path so manager and employee home screens show the next safe workflows clearly. |
-| `src/AppVisualDesign.css` | The app's colors, spacing, sizing, layout, and visual design. |
-| `src/lib/DatabaseConnection.js` | Connects the app to Supabase when the project keys are added. |
-| `server/PlatformAdminReviewService.mjs` | Runs the protected admin review service for app checks and command review. |
+| `src/start-the-app.jsx` | Starts the app in the browser. |
+| `src/protect-from-blank-screen.jsx` | Catches screen crashes so a broken test does not become a blank page. |
+| `src/safe-preview-test-accounts.js` | Ten local test accounts and flow checks used only in Safe Change Preview. |
+| `src/who-can-open-what.js` | Keeps the owner, manager, employee, and platform-admin section access rules in one clear place. |
+| `src/repair-saved-app-data.js` | Repairs broken or older saved prototype data before screens use it. |
+| `src/workforce-app-screens.jsx` | The main WorkForce app screens, buttons, dashboards, and workflows. |
+| `src/dashboard-next-actions.jsx` | Shared top-of-dashboard action path so manager and employee home screens show the next safe workflows clearly. |
+| `src/app-look-and-layout.css` | The app's colors, spacing, sizing, layout, and visual design. |
+| `src/connect-to-supabase.js` | Connects the app to Supabase when the project keys are added. |
+| `server/protected-admin-review-service.mjs` | Runs the protected admin review service for app checks and command review. |
 | `scripts/check-admin-review-service.mjs` | Checks that the admin review service starts and responds correctly. |
 | `scripts/check-command-production-boundary.mjs` | Checks that command review stays disabled or token-protected in production mode. |
 | `scripts/check-home-buttons.mjs` | Checks that owner, manager, employee, and signed-out home buttons still work. |

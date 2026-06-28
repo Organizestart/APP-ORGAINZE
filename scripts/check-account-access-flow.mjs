@@ -7,7 +7,7 @@ import {
   safePreviewFlowChecks,
   safePreviewInviteRecords,
   safePreviewTeamAccounts,
-} from "../src/SafePreviewAccounts.js";
+} from "../src/safe-preview-test-accounts.js";
 
 const storage = new Map();
 
@@ -64,7 +64,7 @@ function assertExcludes(html, labels, screen) {
 
 async function renderScreen(server, search) {
   installBrowserStubs(search);
-  const module = await server.ssrLoadModule("/src/AllWorkForceScreens.jsx");
+  const module = await server.ssrLoadModule("/src/workforce-app-screens.jsx");
   return renderToStaticMarkup(React.createElement(module.App));
 }
 
@@ -124,7 +124,7 @@ async function run() {
     assertIncludes(signedOut, ["Sign in to your workspace", "Log in", "Sign up", "Use email", "Forgot password?", "Create account"], "signed-out access screen");
     assertExcludes(signedOut, ["Sign in as Owner", "Manager Dashboard", "Employee Section", "Command Review Center"], "signed-out access screen");
 
-    const module = await server.ssrLoadModule("/src/AllWorkForceScreens.jsx");
+    const module = await server.ssrLoadModule("/src/workforce-app-screens.jsx");
     const runAction = module.runWorkflowActionForTest;
     assert(typeof runAction === "function", "Workflow action test runner is not exported.");
     const inviteResult = runAction("create-invite", {

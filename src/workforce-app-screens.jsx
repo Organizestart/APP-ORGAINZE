@@ -37,22 +37,22 @@ import {
   WarningCircle,
   X,
 } from "@phosphor-icons/react";
-import { isSupabaseConfigured, supabase } from "./lib/DatabaseConnection.js";
-import { DashboardNextSteps } from "./DashboardNextSteps.jsx";
+import { isSupabaseConfigured, supabase } from "./connect-to-supabase.js";
+import { DashboardNextSteps } from "./dashboard-next-actions.jsx";
 import {
   safePreviewAccounts,
   safePreviewAccountUrl,
   safePreviewFlowChecks,
   safePreviewInviteRecords,
   safePreviewTeamAccounts,
-} from "./SafePreviewAccounts.js";
+} from "./safe-preview-test-accounts.js";
 import {
   firstSectionByRole,
   runtimeRoleForSection,
   safeSectionForRole as safeSectionFromRules,
   sectionIdsForRole as sectionIdsFromRules,
-} from "./RoleAccessRules.js";
-import { repairWorkspaceState } from "./FixSavedAppData.js";
+} from "./who-can-open-what.js";
+import { repairWorkspaceState } from "./repair-saved-app-data.js";
 
 const mainWorkspaceStorageKey = "workforce-command-center-v9";
 const safePreviewStorageKey = "workforce-command-center-safe-preview-v1";

@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { performance } from "node:perf_hooks";
 import { readFile } from "node:fs/promises";
 import { createServer } from "vite";
-import { safePreviewAccounts } from "../src/SafePreviewAccounts.js";
+import { safePreviewAccounts } from "../src/safe-preview-test-accounts.js";
 
 const storage = new Map();
 const mainStorageKey = "workforce-command-center-v9";
@@ -63,7 +63,7 @@ function assertExcludes(html, labels, screen) {
 async function renderScreen(server, search) {
   installBrowserStubs(search);
   const start = performance.now();
-  const module = await server.ssrLoadModule("/src/AllWorkForceScreens.jsx");
+  const module = await server.ssrLoadModule("/src/workforce-app-screens.jsx");
   const html = renderToStaticMarkup(React.createElement(module.App));
   return { html, ms: Math.round(performance.now() - start) };
 }
@@ -74,7 +74,7 @@ async function run() {
   }
   storage.set(mainStorageKey, JSON.stringify({ settingsProfile: { displayName: "Main Workspace Marker" } }));
   storage.set(safePreviewStorageKey, JSON.stringify({ settingsProfile: { displayName: "Safe Preview Marker" } }));
-  const appSource = await readFile("src/AllWorkForceScreens.jsx", "utf8");
+  const appSource = await readFile("src/workforce-app-screens.jsx", "utf8");
   assertIncludes(appSource, ["function preserveSafeChangePreview", "params.set(\"preview\", \"safe-change\")"], "Safe preview URL preservation");
 
   const server = await createServer({

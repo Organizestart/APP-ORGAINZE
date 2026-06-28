@@ -165,7 +165,7 @@ async function assertRoutes(server, routes, screen) {
 
 async function renderScreen(server, search) {
   installBrowserStubs(search);
-  const module = await server.ssrLoadModule("/src/AllWorkForceScreens.jsx");
+  const module = await server.ssrLoadModule("/src/workforce-app-screens.jsx");
   return renderToStaticMarkup(React.createElement(module.App));
 }
 
@@ -175,7 +175,7 @@ async function run() {
     logLevel: "silent",
     server: { middlewareMode: true },
   });
-  const appSource = await readFile("src/AllWorkForceScreens.jsx", "utf8");
+  const appSource = await readFile("src/workforce-app-screens.jsx", "utf8");
 
   try {
     const checks = [

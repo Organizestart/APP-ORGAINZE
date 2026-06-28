@@ -1,7 +1,7 @@
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { createServer } from "vite";
-import { repairWorkspaceState } from "../src/FixSavedAppData.js";
+import { repairWorkspaceState } from "../src/repair-saved-app-data.js";
 
 const storage = new Map();
 const mainStorageKey = "workforce-command-center-v9";
@@ -61,7 +61,7 @@ function assert(condition, message) {
 
 async function renderScreen(server, search, entries = {}) {
   installBrowserStubs(search, entries);
-  const module = await server.ssrLoadModule("/src/AllWorkForceScreens.jsx");
+  const module = await server.ssrLoadModule("/src/workforce-app-screens.jsx");
   return renderToStaticMarkup(React.createElement(module.App));
 }
 

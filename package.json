@@ -7,7 +7,7 @@
     "dev": "concurrently -k -n command,vite \"npm run command:service\" \"vite --host 127.0.0.1\"",
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1",
-    "command:service": "node server/PlatformAdminReviewService.mjs",
+    "command:service": "node server/protected-admin-review-service.mjs",
     "command:smoke": "node scripts/check-admin-review-service.mjs",
     "command-boundary:smoke": "node scripts/check-command-production-boundary.mjs",
     "home:smoke": "node scripts/check-home-buttons.mjs",

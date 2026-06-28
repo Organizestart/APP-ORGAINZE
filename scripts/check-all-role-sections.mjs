@@ -2,7 +2,7 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { readFile } from "node:fs/promises";
 import { createServer } from "vite";
-import { sectionIdsForRole } from "../src/RoleAccessRules.js";
+import { sectionIdsForRole } from "../src/who-can-open-what.js";
 
 const storage = new Map();
 
@@ -63,7 +63,7 @@ function assertSameList(actual, expected, screen) {
 
 async function renderScreen(server, search) {
   installBrowserStubs(search);
-  const module = await server.ssrLoadModule("/src/AllWorkForceScreens.jsx");
+  const module = await server.ssrLoadModule("/src/workforce-app-screens.jsx");
   return renderToStaticMarkup(React.createElement(module.App));
 }
 
@@ -140,12 +140,12 @@ async function assertRoleSections(server, role, account, sections, restrictedLab
 }
 
 async function run() {
-  const appSource = await readFile("src/AllWorkForceScreens.jsx", "utf8");
-  const roleRulesSource = await readFile("src/RoleAccessRules.js", "utf8");
+  const appSource = await readFile("src/workforce-app-screens.jsx", "utf8");
+  const roleRulesSource = await readFile("src/who-can-open-what.js", "utf8");
   assertIncludes(appSource, [
     "function canRoleAccessSection",
     "function safeSectionForRole",
-    "from \"./RoleAccessRules.js\"",
+    "from \"./who-can-open-what.js\"",
   ], "role access architecture");
   assertIncludes(roleRulesSource, [
     "export function sectionIdsForRole",
@@ -160,7 +160,7 @@ async function run() {
   });
 
   try {
-    const appModule = await server.ssrLoadModule("/src/AllWorkForceScreens.jsx");
+    const appModule = await server.ssrLoadModule("/src/workforce-app-screens.jsx");
     assertIncludes(appModule.navigationSectionIdsForTest.toString(), ["navForRole"], "navigation test export");
     for (const role of ["owner", "manager", "employee", "platform-admin"]) {
       assertSameList(
