@@ -576,8 +576,7 @@ function preserveSafeChangePreview(params) {
 
 function initialSectionFromUrl(role) {
   const requested = new URLSearchParams(window.location.search).get("section");
-  const allowed = navForRole(role).some(([id]) => id === requested);
-  return allowed ? requested : firstSectionByRole[role];
+  return safeSectionForRole(role, requested);
 }
 
 function initialSettingsTabFromUrl() {
@@ -1409,8 +1408,8 @@ export function App() {
   }, [data]);
 
   useEffect(() => {
-    const allowed = navForRole(role, data).some(([id]) => id === section);
-    if (!allowed) setSection(firstSectionByRole[role]);
+    const safeSection = safeSectionForRole(role, section, data);
+    if (safeSection !== section) setSection(safeSection);
   }, [data, role, section]);
 
   useEffect(() => {
@@ -1481,27 +1480,30 @@ export function App() {
   }
 
   function navigateSection(nextSection) {
-    const nextSettingsTab = nextSection === "owner-settings" ? "business" : undefined;
+    const safeSection = safeSectionForRole(role, nextSection, data);
+    const nextSettingsTab = safeSection === "owner-settings" ? "business" : undefined;
     if (nextSettingsTab) setSettingsStartTab(nextSettingsTab);
-    setSection(nextSection);
+    setSection(safeSection);
     setRouteFocus(null);
-    syncBrowserUrl(role, nextSection, nextSettingsTab, day);
+    syncBrowserUrl(role, safeSection, nextSettingsTab, day);
   }
 
   function go(nextSection, message, focus = null) {
-    const nextSettingsTab = nextSection === "owner-settings" ? settingsStartTab : undefined;
-    if (nextSection !== "owner-settings") setSettingsStartTab("business");
-    setSection(nextSection);
-    setRouteFocus(focus ? { ...focus, section: nextSection } : null);
-    syncBrowserUrl(role, nextSection, nextSettingsTab, day);
+    const safeSection = safeSectionForRole(role, nextSection, data);
+    const nextSettingsTab = safeSection === "owner-settings" ? settingsStartTab : undefined;
+    if (safeSection !== "owner-settings") setSettingsStartTab("business");
+    setSection(safeSection);
+    setRouteFocus(focus ? { ...focus, section: safeSection } : null);
+    syncBrowserUrl(role, safeSection, nextSettingsTab, day);
     if (message) setToast(message);
   }
 
   function goSettings(tab, message) {
+    const safeSection = safeSectionForRole(role, "owner-settings", data);
     setSettingsStartTab(tab);
-    setSection("owner-settings");
+    setSection(safeSection);
     setRouteFocus(null);
-    syncBrowserUrl(role, "owner-settings", tab, day);
+    syncBrowserUrl(role, safeSection, safeSection === "owner-settings" ? tab : undefined, day);
     if (message) setToast(message);
   }
 
@@ -1774,6 +1776,22 @@ function navForRole(role, data = baseState) {
   }
   if (role === "manager") return managerNav;
   return employeeNav;
+}
+
+function sectionIdsForRole(role, data = baseState) {
+  return navForRole(role, data).map(([id]) => id);
+}
+
+function canRoleAccessSection(role, section, data = baseState) {
+  return sectionIdsForRole(role, data).includes(section);
+}
+
+function safeSectionForRole(role, section, data = baseState) {
+  return canRoleAccessSection(role, section, data) ? section : firstSectionByRole[role];
+}
+
+function runtimeRoleForSection(role, section) {
+  return role === "manager" && section?.startsWith("employee-") ? "employee" : role;
 }
 
 function Sidebar({ nav, role, section, onRole, onSection, data }) {
@@ -2966,7 +2984,7 @@ function SignedOutScreen({ onAuthenticated }) {
 
 function Screen(props) {
   const { section, role } = props;
-  const employeeSectionRole = role === "manager" && section.startsWith("employee-") ? "employee" : role;
+  const employeeSectionRole = runtimeRoleForSection(role, section);
   const sectionProps = employeeSectionRole === role ? props : { ...props, role: employeeSectionRole, actingRole: role };
   if (section === "owner-dashboard") return <OwnerDashboard {...sectionProps} />;
   if (section === "owner-schedule" || section === "manager-schedule") return <ScheduleBoard {...sectionProps} scope={role === "owner" ? "owner" : "manager"} />;

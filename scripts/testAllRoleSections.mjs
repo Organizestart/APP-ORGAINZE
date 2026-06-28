@@ -1,5 +1,6 @@
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { readFile } from "node:fs/promises";
 import { createServer } from "vite";
 
 const storage = new Map();
@@ -130,6 +131,13 @@ async function assertRoleSections(server, role, account, sections, restrictedLab
 }
 
 async function run() {
+  const appSource = await readFile("src/MainWorkForceApp.jsx", "utf8");
+  assertIncludes(appSource, [
+    "function canRoleAccessSection",
+    "function safeSectionForRole",
+    "function runtimeRoleForSection",
+  ], "role access architecture");
+
   const server = await createServer({
     appType: "custom",
     logLevel: "silent",
