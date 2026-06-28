@@ -35,12 +35,12 @@ These files were added or separated so the app can scale without putting every r
 
 - `src/RoleAccessRules.js`: owns allowed sections, safe fallbacks, and manager-as-employee behavior.
 - `src/StateRecoveryRules.js`: repairs broken or older saved prototype data before screens use it.
-- `scripts/testInformationFlow.mjs`: proves important actions update the right local state.
-- `scripts/testAccountAccessFlow.mjs`: proves linked preview accounts and invite boundaries stay intact.
-- `scripts/testSavedDataRecovery.mjs`: proves corrupt saved data does not make the app blank.
-- `scripts/testVisualSafety.mjs`: checks representative screens and CSS containment rules.
-- `scripts/testSupabaseReadiness.mjs`: checks Supabase migrations, secrets, and production-readiness boundaries.
-- `scripts/testCommandProductionBoundary.mjs`: proves production command endpoints are disabled or require the admin token.
+- `scripts/check-information-flow.mjs`: proves important actions update the right local state.
+- `scripts/check-account-access-flow.mjs`: proves linked preview accounts and invite boundaries stay intact.
+- `scripts/check-saved-data-recovery.mjs`: proves corrupt saved data does not make the app blank.
+- `scripts/check-visual-safety.mjs`: checks representative screens and CSS containment rules.
+- `scripts/check-supabase-readiness.mjs`: checks Supabase migrations, secrets, and production-readiness boundaries.
+- `scripts/check-command-production-boundary.mjs`: proves production command endpoints are disabled or require the admin token.
 
 ## Role Coverage
 

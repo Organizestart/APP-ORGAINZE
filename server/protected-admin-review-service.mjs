@@ -251,7 +251,7 @@ async function roleBoundaryCheck() {
 
 async function dashboardActionCheck() {
   const appSource = await readText("src/MainWorkForceApp.jsx", 900000);
-  const homeSmokeSource = await readText("scripts/testHomeButtons.mjs", 120000);
+  const homeSmokeSource = await readText("scripts/check-home-buttons.mjs", 120000);
   const source = `${appSource}\n${homeSmokeSource}`;
   const requirements = [
     {
@@ -751,7 +751,7 @@ async function dashboardActionCheck() {
 
 async function renderedHomeRouteCheck() {
   try {
-    const { stdout, stderr } = await execFileAsync(process.execPath, ["scripts/testHomeButtons.mjs"], {
+    const { stdout, stderr } = await execFileAsync(process.execPath, ["scripts/check-home-buttons.mjs"], {
       cwd: appRoot,
       timeout: 45000,
       maxBuffer: 1024 * 1024 * 3,

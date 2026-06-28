@@ -2,7 +2,7 @@ import { spawn } from "node:child_process";
 
 const port = Number(process.env.COMMAND_SMOKE_PORT || 8797);
 const timeoutMs = 12000;
-const service = spawn(process.execPath, ["server/AdminReviewServer.mjs"], {
+const service = spawn(process.execPath, ["server/protected-admin-review-service.mjs"], {
   cwd: process.cwd(),
   env: {
     ...process.env,

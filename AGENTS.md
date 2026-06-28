@@ -16,7 +16,7 @@ Payroll tracking rule: owner and manager time-review screens should show hourly 
 
 Command Review rule: keep Command Review as a platform/admin tool, not a customer owner feature. Real agent reviews run through the local command service with PM, Designer, and Engineer lanes. Safe fixes are patch proposals only; the app must not directly mutate source files from the UI.
 
-Command production boundary rule: keep `npm run command-boundary:smoke` passing when changing `server/AdminReviewServer.mjs`, Vite proxying, command review UI, or environment configuration. Production mode must leave command endpoints disabled unless `COMMAND_SERVICE_ENABLED=true`, require `COMMAND_ADMIN_TOKEN` for non-health endpoints, block disallowed origins, and still keep fixes as proposals rather than direct source mutation.
+Command production boundary rule: keep `npm run command-boundary:smoke` passing when changing `server/protected-admin-review-service.mjs`, Vite proxying, command review UI, or environment configuration. Production mode must leave command endpoints disabled unless `COMMAND_SERVICE_ENABLED=true`, require `COMMAND_ADMIN_TOKEN` for non-health endpoints, block disallowed origins, and still keep fixes as proposals rather than direct source mutation.
 
 Supabase connection rule: Supabase project configuration, migrations, and public anon-key placeholders may live in GitHub, but real `.env` files, service-role keys, database passwords, and access tokens must never be committed. Treat Supabase as the production data target only after each prototype localStorage workflow is intentionally migrated and role-tested.
 
@@ -117,5 +117,7 @@ Safe preview visual refinement rule: broad dashboard, layout, spacing, density, 
 Safe preview account testing rule: broad account, invite, and role-boundary experiments should use the ten local Safe Preview test accounts before creating real Supabase Auth users. Owners may see all preview account links, managers may see manager and employee test paths only, and employees may see employee-only test paths. Real Supabase account creation should be a later production-auth pass with explicit user approval.
 
 Account access testing rule: account, invite, sign-in, sign-up, use-code, forgot-password, or role-link changes must keep `npm run account-access:smoke` passing. Signed-out screens must stay neutral without owner/manager/employee role buttons, all ten Safe Preview accounts must keep valid linked URLs, invite records must match the preview accounts, and manager-created invites must stay employee-only.
+
+Plain file naming rule: new app, server, and safety-check files should use plain purpose names that Felix can understand without coding experience. Prefer names like `MainWorkForceApp`, `AppDesign`, `RoleAccessRules`, and `check-home-buttons` over hidden abbreviations or generic developer shorthand, and keep `FILE_GUIDE.md` updated when files are added or renamed.
 
 Safe change performance rule: safe-preview changes must keep the app under the current performance budget. Run `npm run safe-change:check` after broad UI work; it includes build, route smoke tests, account role tests, command-service checks, and bundle-size budget checks so new experiments do not add avoidable lag.
