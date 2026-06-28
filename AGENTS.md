@@ -18,6 +18,8 @@ Command Review rule: keep Command Review as a platform/admin tool, not a custome
 
 Supabase connection rule: Supabase project configuration, migrations, and public anon-key placeholders may live in GitHub, but real `.env` files, service-role keys, database passwords, and access tokens must never be committed. Treat Supabase as the production data target only after each prototype localStorage workflow is intentionally migrated and role-tested.
 
+Security hardening rule: production authority must come from Supabase RLS or server-side checks, not URL role parameters or localStorage. Keep v1 invite-only, disable anonymous and SMS auth, require CAPTCHA/Turnstile on public account flows, protect command/AI routes behind platform-admin auth, and record sensitive role, pay, schedule, time, event, billing, and delete actions in an audit trail.
+
 Signed-out rule: when a user signs out, do not show Owner, Manager, or Employee role choices. Show a neutral signed-out state only. Role switching is a prototype preview control inside the app, not part of the signed-out screen.
 
 Role account settings rule: every signed-in role needs a normal account menu with sign out. Owner settings may include business, billing, seats, danger zone, and workspace-wide security. Manager settings may include manager profile, notifications, and account security only; they must never expose owner billing, reports, events, workspace delete, or platform-admin tools. Employee settings may include employee profile, notifications, and account security only; they must never expose manager approvals, owner controls, billing, reports, events, invites, or platform-admin tools.

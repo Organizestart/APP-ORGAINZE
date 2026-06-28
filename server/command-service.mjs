@@ -14,10 +14,20 @@ const __dirname = path.dirname(__filename);
 const appRoot = path.resolve(__dirname, "..");
 const commandModel = process.env.OPENAI_MODEL || "gpt-5.5";
 const defaultPort = Number(process.env.COMMAND_PORT || 8787);
+const commandPayloadLimit = process.env.COMMAND_PAYLOAD_LIMIT || "512kb";
+const commandRateWindowMs = Number(process.env.COMMAND_RATE_WINDOW_MS || 60_000);
+const commandRateLimit = Number(process.env.COMMAND_RATE_LIMIT || 30);
+const allowedCommandOrigins = new Set(
+  (process.env.COMMAND_ALLOWED_ORIGINS || "http://127.0.0.1:5173,http://127.0.0.1:5174,http://localhost:5173,http://localhost:5174")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean)
+);
 
 let lastRun = null;
 let activeServer = null;
 let activeKeepAlive = null;
+const commandRateBuckets = new Map();
 
 const issueSchema = z.object({
   id: z.string().optional(),
@@ -64,6 +74,70 @@ const fixRequestSchema = z.object({
 
 function hasApiKey() {
   return Boolean(process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY.trim());
+}
+
+function isProductionRuntime() {
+  return process.env.NODE_ENV === "production";
+}
+
+function commandServiceEnabled() {
+  return !isProductionRuntime() || process.env.COMMAND_SERVICE_ENABLED === "true";
+}
+
+function requestKey(request) {
+  return request.ip || request.socket?.remoteAddress || "unknown";
+}
+
+function rateLimitCommand(request) {
+  const now = Date.now();
+  const key = requestKey(request);
+  const bucket = commandRateBuckets.get(key) || { count: 0, resetAt: now + commandRateWindowMs };
+  const current = bucket.resetAt <= now ? { count: 0, resetAt: now + commandRateWindowMs } : bucket;
+  current.count += 1;
+  commandRateBuckets.set(key, current);
+  return {
+    ok: current.count <= commandRateLimit,
+    retryAfterSeconds: Math.max(1, Math.ceil((current.resetAt - now) / 1000)),
+  };
+}
+
+function timingSafeTokenMatches(expected, actual) {
+  if (!expected || !actual) return false;
+  const expectedBuffer = Buffer.from(expected);
+  const actualBuffer = Buffer.from(actual);
+  if (expectedBuffer.length !== actualBuffer.length) return false;
+  return crypto.timingSafeEqual(expectedBuffer, actualBuffer);
+}
+
+function commandRequestGuard(request, response, next) {
+  const origin = request.headers.origin;
+  if (origin && !allowedCommandOrigins.has(origin)) {
+    response.status(403).json({ error: "origin_blocked", message: "Command service origin is not allowed." });
+    return;
+  }
+
+  const rate = rateLimitCommand(request);
+  if (!rate.ok) {
+    response.setHeader("Retry-After", String(rate.retryAfterSeconds));
+    response.status(429).json({ error: "rate_limited", message: `Too many command requests. Try again in ${rate.retryAfterSeconds} seconds.` });
+    return;
+  }
+
+  if (!commandServiceEnabled() && request.path !== "/health") {
+    response.status(403).json({ error: "command_disabled", message: "Command service is disabled in production until explicitly secured." });
+    return;
+  }
+
+  if (isProductionRuntime() && request.path !== "/health") {
+    const expectedToken = process.env.COMMAND_ADMIN_TOKEN || "";
+    const actualToken = request.headers["x-command-admin-token"] || "";
+    if (!timingSafeTokenMatches(expectedToken, String(actualToken))) {
+      response.status(401).json({ error: "admin_token_required", message: "Command service requires platform-admin authorization." });
+      return;
+    }
+  }
+
+  next();
 }
 
 function truncate(value, max = 12000) {
@@ -981,16 +1055,20 @@ async function createAgentFixProposals(report, selectedIssueIds) {
 
 export function createCommandApp() {
   const app = express();
-  app.use(express.json({ limit: "2mb" }));
+  app.use(express.json({ limit: commandPayloadLimit }));
+  app.use("/api/command", commandRequestGuard);
 
   app.get("/api/command/health", (_request, response) => {
     response.json({
       ok: true,
       ready: true,
-      configured: hasApiKey(),
+      enabled: commandServiceEnabled(),
+      configured: commandServiceEnabled() && hasApiKey(),
       model: commandModel,
       lastRun,
-      message: hasApiKey()
+      message: !commandServiceEnabled()
+        ? "Command service is disabled in production until COMMAND_SERVICE_ENABLED and COMMAND_ADMIN_TOKEN are configured."
+        : hasApiKey()
         ? "Command agent service is ready."
         : "Command agent service is running. Set OPENAI_API_KEY to enable real agent reviews.",
     });

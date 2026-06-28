@@ -37,9 +37,17 @@ import {
   WarningCircle,
   X,
 } from "@phosphor-icons/react";
+import { isSupabaseConfigured, supabase } from "./lib/supabaseClient.js";
 
 const storageKey = "workforce-command-center-v9";
 const commandReviewStorageKey = "workforce-admin-command-review-latest";
+const authAttemptStorageKey = "workforce-auth-attempts-v1";
+const inviteAttemptStorageKey = "workforce-invite-attempts-v1";
+const inviteTtlMs = 7 * 24 * 60 * 60 * 1000;
+const authAttemptWindowMs = 10 * 60 * 1000;
+const inviteAttemptWindowMs = 15 * 60 * 1000;
+const maxAuthAttempts = 6;
+const maxInviteAttempts = 5;
 
 const locations = [
   { id: "all", name: "All locations" },
@@ -166,6 +174,11 @@ const defaultSecuritySettings = {
   passwordPolicy: "Strong - 8+ characters",
   sso: "Not configured",
   activeSessions: "View sessions (3)",
+  signupMode: "Invite only",
+  captcha: "Required on public account flows",
+  anonymousAuth: "Disabled",
+  smsAuth: "Disabled",
+  spendProtection: "Spend cap and alerts required",
 };
 
 const defaultNotificationSettings = {
@@ -461,6 +474,7 @@ const baseState = {
   completedGuideIds: ["g1"],
   reportSnapshots: [],
   reportLog: ["Weekly labor report generated at 8:15 AM"],
+  auditLog: [],
 };
 
 const ownerNav = [
@@ -755,6 +769,89 @@ function getTeamInvites(data) {
 
 function getTeamAccounts(data) {
   return Array.isArray(data?.teamAccounts) ? data.teamAccounts : [];
+}
+
+function getAuditLog(data) {
+  return Array.isArray(data?.auditLog) ? data.auditLog : [];
+}
+
+function appendAudit(data, entry) {
+  return {
+    ...data,
+    auditLog: [{
+      id: `audit-${Date.now()}-${secureRandomToken(4)}`,
+      at: new Date().toISOString(),
+      ...entry,
+    }, ...getAuditLog(data)].slice(0, 200),
+  };
+}
+
+function secureRandomToken(length = 12) {
+  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const values = new Uint32Array(length);
+  if (globalThis.crypto?.getRandomValues) {
+    globalThis.crypto.getRandomValues(values);
+    return Array.from(values, (value) => alphabet[value % alphabet.length]).join("");
+  }
+  return Array.from({ length }, () => alphabet[Math.floor(Math.random() * alphabet.length)]).join("");
+}
+
+function normalizeAccessCode(value) {
+  return String(value || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
+}
+
+function inviteCodeParts(code) {
+  const normalized = normalizeAccessCode(code);
+  return normalized ? normalized.match(/.{1,4}/g)?.join("-") || normalized : "";
+}
+
+function inviteExpiresAt() {
+  return new Date(Date.now() + inviteTtlMs).toISOString();
+}
+
+function inviteIsExpired(invite) {
+  if (!invite?.expiresAt) return false;
+  return Date.parse(invite.expiresAt) <= Date.now();
+}
+
+function inviteStatus(invite) {
+  if (!invite) return "missing";
+  if (invite.status !== "pending") return invite.status;
+  return inviteIsExpired(invite) ? "expired" : "pending";
+}
+
+function emailMatchesInvite(invite, email) {
+  if (!invite?.email) return true;
+  return invite.email.trim().toLowerCase() === String(email || "").trim().toLowerCase();
+}
+
+function attemptBucket(storageKeyName, key, maxAttempts, windowMs) {
+  const now = Date.now();
+  const safeKey = String(key || "unknown").toLowerCase();
+  let store = {};
+  try {
+    store = JSON.parse(localStorage.getItem(storageKeyName) || "{}") || {};
+  } catch {
+    store = {};
+  }
+  const current = store[safeKey] || { count: 0, resetAt: now + windowMs };
+  const nextCurrent = current.resetAt <= now ? { count: 0, resetAt: now + windowMs } : current;
+  const nextCount = nextCurrent.count + 1;
+  store[safeKey] = { count: nextCount, resetAt: nextCurrent.resetAt };
+  localStorage.setItem(storageKeyName, JSON.stringify(store));
+  return {
+    ok: nextCount <= maxAttempts,
+    remaining: Math.max(0, maxAttempts - nextCount),
+    retryAfterMinutes: Math.max(1, Math.ceil((nextCurrent.resetAt - now) / 60000)),
+  };
+}
+
+function authAttemptKey(mode, email) {
+  return `${mode}:${String(email || "").trim().toLowerCase() || "unknown"}`;
+}
+
+function inviteAttemptKey(code, email) {
+  return `${normalizeAccessCode(code) || "unknown"}:${String(email || "").trim().toLowerCase() || "unknown"}`;
 }
 
 function ownerRunsManagerFunctions(data) {
@@ -2423,6 +2520,7 @@ function buildOwnerDecisionBrief(data, shifts, metrics, location, day, recommend
 function SignedOutScreen({ onAuthenticated }) {
   const [mode, setMode] = useState("login");
   const [codeSent, setCodeSent] = useState(false);
+  const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("Use your work email to continue.");
   const [form, setForm] = useState({
     email: "maya.chen@greenviewcafe.com",
@@ -2442,22 +2540,103 @@ function SignedOutScreen({ onAuthenticated }) {
     setNotice(nextMode === "forgot" ? "Enter your work email and we will send a reset link." : "Use your work email to continue.");
   }
 
-  function submitAuth(event) {
+  async function submitAuth(event) {
     event.preventDefault();
-    if (mode === "forgot") {
-      setNotice("Password reset link sent. Check your email to continue.");
+    if (busy) return;
+    const attempt = attemptBucket(authAttemptStorageKey, authAttemptKey(mode, form.email), maxAuthAttempts, authAttemptWindowMs);
+    if (!attempt.ok) {
+      setNotice(`Too many attempts. Try again in about ${attempt.retryAfterMinutes} minutes.`);
       return;
     }
-    if (mode === "email-code" && !codeSent) {
-      setCodeSent(true);
-      setNotice("Sign-in code sent. Enter the code from your email.");
-      return;
-    }
+
     if (mode === "signup" && !form.inviteCode.trim()) {
       setNotice("Enter the invite code from your workplace to create the account.");
       return;
     }
-    onAuthenticated(mode === "signup" ? "Account created. Workspace opened." : "Signed in. Workspace opened.");
+    if ((mode === "login" || mode === "signup") && form.password.length < 8) {
+      setNotice("Password needs at least 8 characters.");
+      return;
+    }
+
+    setBusy(true);
+    try {
+      if (isSupabaseConfigured && supabase) {
+        if (mode === "forgot") {
+          const { error } = await supabase.auth.resetPasswordForEmail(form.email);
+          if (error) throw error;
+          setNotice("Password reset link sent. Check your email to continue.");
+          return;
+        }
+        if (mode === "email-code" && !codeSent) {
+          const { error } = await supabase.auth.signInWithOtp({
+            email: form.email,
+            options: { shouldCreateUser: false },
+          });
+          if (error) throw error;
+          setCodeSent(true);
+          setNotice("Sign-in code sent. Enter the code from your email.");
+          return;
+        }
+        if (mode === "email-code" && codeSent) {
+          const { data, error } = await supabase.auth.verifyOtp({
+            email: form.email,
+            token: form.emailCode.trim(),
+            type: "email",
+          });
+          if (error) throw error;
+          if (!data.session) {
+            setNotice("Email verified. Finish any required workplace approval before entering the app.");
+            return;
+          }
+          onAuthenticated("Signed in with email code. Workspace opened.");
+          return;
+        }
+        if (mode === "login") {
+          const { data, error } = await supabase.auth.signInWithPassword({ email: form.email, password: form.password });
+          if (error) throw error;
+          if (!data.session) {
+            setNotice("Check your email to finish verification before entering the app.");
+            return;
+          }
+          onAuthenticated("Signed in. Workspace opened.");
+          return;
+        }
+        if (mode === "signup") {
+          const { data, error } = await supabase.auth.signUp({
+            email: form.email,
+            password: form.password,
+            options: {
+              data: {
+                full_name: form.name.trim(),
+                invite_code: normalizeAccessCode(form.inviteCode),
+              },
+            },
+          });
+          if (error) throw error;
+          if (!data.session) {
+            setNotice("Account created. Check your email to verify before entering the workspace.");
+            return;
+          }
+          onAuthenticated("Account created. Workspace opened.");
+          return;
+        }
+      }
+
+      if (mode === "forgot") {
+        setNotice("Password reset link sent. Check your email to continue.");
+        return;
+      }
+      if (mode === "email-code" && !codeSent) {
+        setCodeSent(true);
+        setNotice("Sign-in code sent. Enter the code from your email.");
+        return;
+      }
+      onAuthenticated(mode === "signup" ? "Account created. Workspace opened." : "Signed in. Workspace opened.");
+    } catch (error) {
+      setNotice(error.message || "Could not complete sign in. Try again.");
+    } finally {
+      setBusy(false);
+    }
   }
 
   const isLogin = mode === "login";
@@ -2485,7 +2664,7 @@ function SignedOutScreen({ onAuthenticated }) {
           <div className="auth-trust-list" aria-label="Access protections">
             <div>
               <ShieldCheck size={18} weight="fill" />
-              <span>Session protected after logout</span>
+              <span>{isSupabaseConfigured ? "Supabase session protection active" : "Prototype session protection active"}</span>
             </div>
             <div>
               <CheckCircle size={18} weight="fill" />
@@ -2493,7 +2672,7 @@ function SignedOutScreen({ onAuthenticated }) {
             </div>
             <div>
               <SignIn size={18} weight="fill" />
-              <span>Invite codes supported for new accounts</span>
+              <span>Invite-only signup and attempt limits ready</span>
             </div>
           </div>
         </div>
@@ -2557,7 +2736,7 @@ function SignedOutScreen({ onAuthenticated }) {
             <div className="auth-notice" role="status">{notice}</div>
 
             <button className="auth-submit" type="submit">
-              <span>{submitLabel}</span>
+              <span>{busy ? "Working..." : submitLabel}</span>
               <PaperPlaneRight size={18} weight="fill" />
             </button>
           </form>
@@ -10454,7 +10633,12 @@ function requestCoverageSupport(patchData, context = {}) {
 function addShift(form, patchData) {
   const date = validDateKey(form.date) ? form.date : operationsToday;
   patchData((data) => ({
-    ...data,
+    ...appendAudit(data, {
+      actor: "Owner or manager",
+      action: "schedule.shift_created",
+      target: `${form.employee} / ${date}`,
+      detail: `${form.role} shift added for ${locationName(form.locationId)}.`,
+    }),
     shifts: [{ id: `s${Date.now()}`, status: form.employee === "Open shift" ? "open" : "covered", ...form, date }, ...data.shifts],
   }), "Shift added to the schedule.");
 }
@@ -10466,7 +10650,12 @@ function addOpenShiftForScheduleDay({ date, location, selectedShift, timelineBou
   const end = Number.isFinite(selectedShift?.end) && selectedShift.end > start ? selectedShift.end : Math.min(start + 4, Number.isFinite(timelineBounds?.end) ? timelineBounds.end : 17);
   const role = selectedShift?.status === "open" || selectedShift?.status === "pending" ? selectedShift.role : selectedShift?.role || "Service";
   patchData((current) => ({
-    ...current,
+    ...appendAudit(current, {
+      actor: "Owner or manager",
+      action: "schedule.open_shift_created",
+      target: `${safeDate} / ${safeLocation}`,
+      detail: `${role} open shift created for team claim.`,
+    }),
     shifts: [{
       id: `s${Date.now()}`,
       employee: "Open shift",
@@ -10757,20 +10946,27 @@ function inviteRoleOptions(role) {
 
 function makeInviteCode(targetRole) {
   const prefix = targetRole === "manager" ? "MGR" : "EMP";
-  return `GV-${prefix}-${Math.floor(1000 + Math.random() * 9000)}`;
+  return `GV-${prefix}-${inviteCodeParts(secureRandomToken(12))}`;
 }
 
 function createTeamInvite(form, role, patchData) {
   const targetRole = role === "manager" ? "employee" : form.targetRole;
   const code = makeInviteCode(targetRole);
   const name = form.name.trim() || "New team member";
+  const email = form.email.trim().toLowerCase();
   patchData((data) => ({
-    ...data,
+    ...appendAudit(data, {
+      actor: roleLabel(role),
+      action: "invite.created",
+      target: email || name,
+      detail: `${roleLabel(targetRole)} invite created for ${locationName(form.locationId)}.`,
+    }),
     teamInvites: [{
       id: `inv${Date.now()}`,
       code,
+      codeFingerprint: normalizeAccessCode(code).slice(-6),
       name,
-      email: form.email.trim(),
+      email,
       targetRole,
       locationId: form.locationId,
       status: "pending",
@@ -10778,6 +10974,9 @@ function createTeamInvite(form, role, patchData) {
       verification: optionLabel(inviteVerificationOptions, form.verification, "Email code"),
       createdAt: "Just now",
       expires: "7 days",
+      expiresAt: inviteExpiresAt(),
+      maxAttempts: maxInviteAttempts,
+      attempts: 0,
       note: form.note,
     }, ...getTeamInvites(data)],
   }), `${roleLabel(targetRole)} invite code ${code} created.`);
@@ -10785,22 +10984,42 @@ function createTeamInvite(form, role, patchData) {
 }
 
 function activateTeamAccount(form, data, patchData) {
-  const code = form.code.trim().toUpperCase();
-  const invite = getTeamInvites(data).find((item) => item.code.toUpperCase() === code);
-  if (!invite || invite.status !== "pending") {
+  const code = normalizeAccessCode(form.code);
+  const email = form.email.trim().toLowerCase();
+  const attempt = attemptBucket(inviteAttemptStorageKey, inviteAttemptKey(code, email), maxInviteAttempts, inviteAttemptWindowMs);
+  if (!attempt.ok) {
+    patchData((current) => appendAudit(current, {
+      actor: email || "Unknown",
+      action: "invite.blocked",
+      target: code.slice(-6) || "unknown",
+      detail: `Invite activation throttled for about ${attempt.retryAfterMinutes} minutes.`,
+    }), `Too many invite attempts. Try again in about ${attempt.retryAfterMinutes} minutes.`);
+    return false;
+  }
+  const invite = getTeamInvites(data).find((item) => normalizeAccessCode(item.code) === code);
+  const status = inviteStatus(invite);
+  if (status !== "pending") {
     patchData((current) => current, "Invite code is not active.");
+    return false;
+  }
+  if (!emailMatchesInvite(invite, email)) {
+    patchData((current) => appendAudit(current, {
+      actor: email || "Unknown",
+      action: "invite.email_mismatch",
+      target: invite.codeFingerprint || normalizeAccessCode(invite.code).slice(-6),
+      detail: "Invite activation blocked because the email did not match the invite.",
+    }), "This invite is tied to a different email.");
     return false;
   }
   if ((form.password || "").length < 8) {
     patchData((current) => current, "Password needs at least 8 characters.");
     return false;
   }
-  if ((form.verificationCode || "").trim().length < 4) {
-    patchData((current) => current, "Verification code is required.");
+  if ((form.verificationCode || "").trim().length < 6) {
+    patchData((current) => current, "Verification code needs 6 digits.");
     return false;
   }
   const name = form.name.trim() || invite.name;
-  const email = form.email.trim() || invite.email;
   const account = {
     id: `acct${Date.now()}`,
     name,
@@ -10814,10 +11033,15 @@ function activateTeamAccount(form, data, patchData) {
     passwordSet: true,
   };
   patchData((current) => ({
-    ...current,
+    ...appendAudit(current, {
+      actor: email,
+      action: "invite.accepted",
+      target: invite.codeFingerprint || normalizeAccessCode(invite.code).slice(-6),
+      detail: `${roleLabel(invite.targetRole)} account activated for ${name}.`,
+    }),
     teamInvites: getTeamInvites(current).map((item) => (
-      item.id === invite.id || item.code.toUpperCase() === invite.code.toUpperCase()
-        ? { ...item, status: "accepted", expires: "Used", acceptedBy: email }
+      item.id === invite.id || normalizeAccessCode(item.code) === normalizeAccessCode(invite.code)
+        ? { ...item, status: "accepted", expires: "Used", acceptedBy: email, acceptedAt: new Date().toISOString(), attempts: Number(item.attempts || 0) + 1 }
         : item
     )),
     teamAccounts: [account, ...getTeamAccounts(current).filter((item) => item.email.toLowerCase() !== email.toLowerCase())],
@@ -10827,7 +11051,12 @@ function activateTeamAccount(form, data, patchData) {
 
 function cancelInvite(id, patchData) {
   patchData((data) => ({
-    ...data,
+    ...appendAudit(data, {
+      actor: "Owner or manager",
+      action: "invite.canceled",
+      target: id,
+      detail: "Invite code canceled before activation.",
+    }),
     teamInvites: getTeamInvites(data).map((invite) => invite.id === id ? { ...invite, status: "canceled", expires: "Canceled" } : invite),
   }), "Invite code canceled.");
 }
@@ -10835,7 +11064,12 @@ function cancelInvite(id, patchData) {
 function addEvent(form, patchData) {
   const needed = Math.max(1, Number(form.needed) || 1);
   patchData((data) => ({
-    ...data,
+    ...appendAudit(data, {
+      actor: "Owner",
+      action: "event.created",
+      target: form.title,
+      detail: `${form.title} created for ${locationName(form.locationId)}.`,
+    }),
     events: [{ id: `e${Date.now()}`, signed: 0, ...form, needed }, ...data.events],
   }), "Event created.");
 }
@@ -10843,7 +11077,12 @@ function addEvent(form, patchData) {
 function updateEvent(id, form, patchData) {
   const needed = Math.max(1, Number(form.needed) || 1);
   patchData((data) => ({
-    ...data,
+    ...appendAudit(data, {
+      actor: "Owner",
+      action: "event.updated",
+      target: id,
+      detail: `${form.title} updated.`,
+    }),
     events: data.events.map((event) => (
       event.id === id
         ? { ...event, ...form, needed, signed: Math.min(Number(event.signed) || 0, needed) }
@@ -10854,8 +11093,17 @@ function updateEvent(id, form, patchData) {
 
 function deleteEvent(id, patchData) {
   patchData((data) => ({
-    ...data,
+    ...appendAudit(data, {
+      actor: "Owner",
+      action: "event.deleted",
+      target: id,
+      detail: "Event removed from active board.",
+    }),
     events: data.events.filter((event) => event.id !== id),
+    deletedEvents: [
+      ...data.events.filter((event) => event.id === id).map((event) => ({ ...event, deletedAt: new Date().toISOString(), status: "deleted" })),
+      ...(Array.isArray(data.deletedEvents) ? data.deletedEvents : []),
+    ].slice(0, 50),
   }), "Event deleted.");
 }
 
@@ -10909,7 +11157,12 @@ function eventStaffCandidates(event, data) {
 
 function assignEventStaff(id, employee, patchData) {
   patchData((data) => ({
-    ...data,
+    ...appendAudit(data, {
+      actor: "Owner or manager",
+      action: "event.staff_assigned",
+      target: id,
+      detail: `${employee} assigned to event.`,
+    }),
     events: data.events.map((event) => {
       if (event.id !== id) return event;
       const assignments = event.staffAssignments || [];
@@ -11141,7 +11394,12 @@ function punchClock(action, patchData) {
   const next = states[action];
   if (!next) return;
   patchData((data) => ({
-    ...data,
+    ...appendAudit(data, {
+      actor: "Ava Brooks",
+      action: `time.${action}`,
+      target: operationsToday,
+      detail: next.message,
+    }),
     clockedIn: next.clockedIn,
     timeClock: {
       ...defaultTimeClock,
@@ -11169,28 +11427,48 @@ function sendNearWorkNote(patchData) {
 function updateHourlyRate(id, value, patchData) {
   const hourlyRate = Math.max(0, Number(value || 0));
   patchData((data) => ({
-    ...data,
+    ...appendAudit(data, {
+      actor: "Owner or authorized manager",
+      action: "pay.hourly_rate_updated",
+      target: id,
+      detail: `Hourly rate set to ${rateMoney(hourlyRate)}.`,
+    }),
     timeEntries: data.timeEntries.map((entry) => entry.id === id ? { ...entry, hourlyRate } : entry),
   }), "Hourly rate updated.");
 }
 
 function approveTime(id, patchData) {
   patchData((data) => ({
-    ...data,
+    ...appendAudit(data, {
+      actor: "Owner or manager",
+      action: "time.approved",
+      target: id,
+      detail: "Time entry approved.",
+    }),
     timeEntries: data.timeEntries.map((entry) => entry.id === id ? { ...entry, flag: "Approved", status: "Approved", severity: "approved" } : entry),
   }), "Time entry approved.");
 }
 
 function requestTimeCorrection(id, patchData) {
   patchData((data) => ({
-    ...data,
+    ...appendAudit(data, {
+      actor: "Owner or manager",
+      action: "time.correction_requested",
+      target: id,
+      detail: "Employee time correction requested.",
+    }),
     timeEntries: data.timeEntries.map((entry) => entry.id === id ? { ...entry, flag: "Correction requested", status: "Employee follow-up", severity: "pending" } : entry),
   }), "Correction request sent to employee.");
 }
 
 function ownerReviewTime(id, patchData) {
   patchData((data) => ({
-    ...data,
+    ...appendAudit(data, {
+      actor: "Owner",
+      action: "time.owner_reviewed",
+      target: id,
+      detail: "Owner review logged.",
+    }),
     timeEntries: data.timeEntries.map((entry) => entry.id === id ? { ...entry, flag: "Owner reviewed", status: "Audit logged", severity: "approved" } : entry),
   }), "Owner review logged.");
 }
@@ -11226,7 +11504,15 @@ function sendMessage(id, text, patchData, toastMessage, sender = "You") {
 }
 
 function updateBilling(update, patchData) {
-  patchData((data) => ({ ...data, billing: { ...data.billing, ...update } }), "Billing estimate updated.");
+  patchData((data) => ({
+    ...appendAudit(data, {
+      actor: "Owner",
+      action: "billing.updated",
+      target: "workspace billing",
+      detail: Object.keys(update).join(", ") || "Billing update",
+    }),
+    billing: { ...data.billing, ...update },
+  }), "Billing estimate updated.");
 }
 
 function switchBusinessWorkspace(id, patchData, setLocation) {
@@ -11270,35 +11556,66 @@ function applyBusinessSetup(data, nextSetup) {
 
 function saveSettingsModal(modal, form, patchData) {
   if (modal === "settings-profile") {
-    patchData((data) => ({ ...data, settingsProfile: { ...getSettingsProfile(data), ...form } }), "Company profile updated.");
+    patchData((data) => ({
+      ...appendAudit(data, { actor: "Owner", action: "settings.profile_updated", target: "company profile", detail: "Company profile updated." }),
+      settingsProfile: { ...getSettingsProfile(data), ...form },
+    }), "Company profile updated.");
     return;
   }
   if (modal === "settings-locations" || modal === "settings-rules") {
-    patchData((data) => applyBusinessSetup(data, { ...getBusinessSetup(data), ...form }), modal === "settings-locations" ? "Location settings updated." : "Workspace rules updated.");
+    patchData((data) => appendAudit(
+      applyBusinessSetup(data, { ...getBusinessSetup(data), ...form }),
+      {
+        actor: "Owner",
+        action: modal === "settings-locations" ? "settings.locations_updated" : "settings.rules_updated",
+        target: "workspace setup",
+        detail: modal === "settings-locations" ? "Location settings updated." : "Workspace rules updated.",
+      },
+    ), modal === "settings-locations" ? "Location settings updated." : "Workspace rules updated.");
     return;
   }
   if (modal === "settings-hours") {
-    patchData((data) => ({ ...data, workspaceHours: { ...getWorkspaceHours(data), ...form } }), "Business hours updated.");
+    patchData((data) => ({
+      ...appendAudit(data, { actor: "Owner", action: "settings.hours_updated", target: "business hours", detail: "Business hours updated." }),
+      workspaceHours: { ...getWorkspaceHours(data), ...form },
+    }), "Business hours updated.");
     return;
   }
   if (modal === "settings-plan") {
-    patchData((data) => ({ ...data, billing: { ...data.billing, plan: form.plan } }), "Billing plan updated.");
+    patchData((data) => ({
+      ...appendAudit(data, { actor: "Owner", action: "billing.plan_updated", target: "billing plan", detail: `Billing plan set to ${form.plan}.` }),
+      billing: { ...data.billing, plan: form.plan },
+    }), "Billing plan updated.");
     return;
   }
   if (modal === "settings-seats") {
-    patchData((data) => ({ ...data, billing: { ...data.billing, seats: Math.max(1, Number(form.seats || 1)), included: Math.max(1, Number(form.included || 1)) } }), "Seat count updated.");
+    patchData((data) => ({
+      ...appendAudit(data, { actor: "Owner", action: "billing.seats_updated", target: "billing seats", detail: "Seat count updated." }),
+      billing: { ...data.billing, seats: Math.max(1, Number(form.seats || 1)), included: Math.max(1, Number(form.included || 1)) },
+    }), "Seat count updated.");
     return;
   }
   if (modal === "settings-invoice") {
-    patchData((data) => ({ ...data, invoiceContact: { ...getInvoiceContact(data), ...form } }), "Invoice contact updated.");
+    patchData((data) => ({
+      ...appendAudit(data, { actor: "Owner", action: "billing.invoice_contact_updated", target: form.email, detail: "Invoice contact updated." }),
+      invoiceContact: { ...getInvoiceContact(data), ...form },
+    }), "Invoice contact updated.");
     return;
   }
   if (modal === "settings-security") {
-    patchData((data) => ({ ...data, securitySettings: { ...getSecuritySettings(data), ...form } }), "Security settings updated.");
+    patchData((data) => ({
+      ...appendAudit(data, { actor: "Owner", action: "settings.security_updated", target: "security settings", detail: "Security settings updated." }),
+      securitySettings: { ...getSecuritySettings(data), ...form },
+    }), "Security settings updated.");
     return;
   }
   if (modal === "settings-delete") {
-    patchData((data) => ({ ...data, deletionRequest: form.confirm === "DELETE" ? { requestedAt: "Today", status: "Owner review required" } : data.deletionRequest }), form.confirm === "DELETE" ? "Deletion request recorded for owner review." : "Workspace deletion stayed locked.");
+    patchData((data) => form.confirm === "DELETE"
+      ? {
+          ...appendAudit(data, { actor: "Owner", action: "workspace.delete_requested", target: "workspace", detail: "Deletion request recorded for owner review." }),
+          deletionRequest: { requestedAt: "Today", status: "Owner review required" },
+        }
+      : data, form.confirm === "DELETE" ? "Deletion request recorded for owner review." : "Workspace deletion stayed locked.");
     return;
   }
   patchData((data) => data, "Account health checked.");
