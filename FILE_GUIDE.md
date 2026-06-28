@@ -22,6 +22,7 @@ These are the main files you will usually care about.
 | `scripts/testInformationFlow.mjs` | Checks that important actions really update schedule, requests, time, events, reports, and team messages. |
 | `scripts/testSavedDataRecovery.mjs` | Checks that broken or older saved prototype data does not make the app go blank. |
 | `scripts/testVisualSafety.mjs` | Checks key screens and CSS guardrails for text overflow, bad display values, and missing containment rules. |
+| `scripts/testSupabaseReadiness.mjs` | Checks Supabase migrations, secret boundaries, and production-readiness reminders before GitHub/Supabase work is trusted. |
 | `scripts/testAppSizeAndSpeed.mjs` | Checks that test changes do not make the app bundle too large and slow. |
 | `supabase/migrations/` | Database setup and security changes that Supabase reads from GitHub. |
 | `SECURITY_RUNBOOK.md` | Human checklist for account security, bot protection, billing protection, and audit logging. |

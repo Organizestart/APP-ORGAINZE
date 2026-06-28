@@ -38,6 +38,8 @@ State recovery architecture rule: keep generic saved-data repair behavior in `sr
 
 Visual safety testing rule: broad layout, copy, dashboard, schedule, team, settings, events, time, or employee-screen changes must keep `npm run visual-safety:smoke` passing. The smoke check should render representative owner, manager, employee, signed-out, and platform-admin screens, block visible `undefined`, `NaN`, `[object Object]`, and long unbroken labels, and verify CSS still contains the containment rules that prevent words and controls from spilling outside their cards.
 
+Supabase readiness rule: any GitHub/Supabase-facing change must keep `npm run supabase-readiness:smoke` passing. The check should prove real `.env` files are not tracked, frontend code uses only public Supabase anon variables, migrations keep RLS/audit/invite/soft-delete hardening visible, and docs still state the app is a prototype until Supabase RLS-backed workflows are migrated and tested.
+
 Owner and manager dashboard cleanup rule: owner and manager dashboards are daily operations surfaces, not billing, admin, or AI-agent review surfaces. Keep owner home focused on schedule health, gaps, requests, time risk, team handoff, events, and guide work; keep billing and workspace administration in Settings. Keep manager home focused on schedule, requests, time, guide, and team handoff only. Real Agents SDK / Command Review work stays platform-admin-only.
 
 Owner home business-health rule: the Business Health lower card must follow the selected workspace date. Location rows should count only shifts for that date, open schedule/report destinations with that date context, and include a compact brief action that posts the selected location/date summary into Manager Handoff.

@@ -45,6 +45,7 @@ npm run safe-change:check
 - Safe preview screens do not expose restricted owner or manager controls.
 - Broken or older saved prototype data does not make owner, manager, employee, or Safe Change Preview screens go blank.
 - Representative screens and CSS guardrails are checked for bad display values, long unbroken text, and missing containment rules.
+- Supabase and GitHub-facing files are checked for migration hardening, secret boundaries, and prototype-vs-production warnings.
 
 ## Working Rules
 
