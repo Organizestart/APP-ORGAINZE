@@ -37,21 +37,22 @@ import {
   WarningCircle,
   X,
 } from "@phosphor-icons/react";
-import { isSupabaseConfigured, supabase } from "./lib/ConnectToSupabase.js";
+import { isSupabaseConfigured, supabase } from "./lib/SupabaseConnection.js";
+import { DashboardActionPath } from "./DashboardActionPath.jsx";
 import {
   safePreviewAccounts,
   safePreviewAccountUrl,
   safePreviewFlowChecks,
   safePreviewInviteRecords,
   safePreviewTeamAccounts,
-} from "./SafePreviewAccounts.js";
+} from "./PreviewTestAccounts.js";
 import {
   firstSectionByRole,
   runtimeRoleForSection,
   safeSectionForRole as safeSectionFromRules,
   sectionIdsForRole as sectionIdsFromRules,
-} from "./RoleAccessRules.js";
-import { repairWorkspaceState } from "./StateRecoveryRules.js";
+} from "./RolePermissionRules.js";
+import { repairWorkspaceState } from "./SavedDataRepairRules.js";
 
 const mainWorkspaceStorageKey = "workforce-command-center-v9";
 const safePreviewStorageKey = "workforce-command-center-safe-preview-v1";
@@ -4481,6 +4482,54 @@ function ManagerDashboard({ data, metrics, shifts, openModal, patchData, go, goT
         <Metric label="Approvals" value={pendingCount} detail={pendingRequest ? `${pendingRequest.type} waiting` : ownerManaged ? "Owner-managed queue" : `${dateInfo.label} queue clear`} state={pendingCount ? "warn" : "good"} onClick={openManagerRequests} actionTarget={requestTarget} />
         <Metric label="Guide Progress" value={`${metrics.guide}%`} detail={lowGuide ? `Review ${lowGuide.title}` : "Assigned cards"} onClick={openManagerGuide} actionTarget={guideTarget} />
       </section>
+      <DashboardActionPath
+        eyebrow={ownerManaged ? "Owner-managed route" : "Manager path"}
+        title={openShift ? "Close coverage first" : noDayPlan ? "Build the day plan" : pendingCount || timeFlagCount ? "Clear the next decision" : "Team path is clear"}
+        detail={openShift ? `${locationName(openShift.locationId)} needs ${openShift.role}.` : noDayPlan ? `${dateInfo.label} needs a schedule before team asks.` : "Schedule, requests, time, and handoff stay in one safe manager flow."}
+        tone={openShift || noDayPlan ? "warn" : pendingCount || timeFlagCount ? "info" : "good"}
+        items={[
+          {
+            id: "schedule",
+            icon: CalendarBlank,
+            label: "Schedule",
+            detail: coverageDetail,
+            status: openShift ? `${openShifts.length} gap${openShifts.length === 1 ? "" : "s"}` : noDayPlan ? "Build" : "Ready",
+            tone: openShift || noDayPlan ? "warn" : "good",
+            target: scheduleTarget,
+            onClick: () => openManagerSchedule(`${dateInfo.label} schedule opened from manager path.`),
+          },
+          {
+            id: "requests",
+            icon: ListChecks,
+            label: "Requests",
+            detail: pendingRequest ? `${pendingRequest.employee} needs ${pendingRequest.type}.` : `${dateInfo.label} request queue is clear.`,
+            status: pendingCount || "Clear",
+            tone: pendingCount ? "warn" : "good",
+            target: requestTarget,
+            onClick: openManagerRequests,
+          },
+          {
+            id: "time",
+            icon: Clock,
+            label: "Time",
+            detail: timeFlag ? `${timeFlag.employee} - ${timeFlag.flag}.` : dateInfo.isToday ? "No active time blockers." : "Review on the workday.",
+            status: timeFlagCount ? "Review" : "Clear",
+            tone: timeFlagCount ? "warn" : "good",
+            target: timeTarget,
+            onClick: openManagerTime,
+          },
+          {
+            id: "handoff",
+            icon: ChatCircleText,
+            label: "Handoff",
+            detail: openShift ? "Ask Coverage Team from the visible gap." : "Post the dated manager digest.",
+            status: openShift ? "Ask" : "Digest",
+            tone: openShift ? "warn" : "info",
+            target: openShift ? `${teamTargetPrefix}:coverage` : `${teamTargetPrefix}:manager-handoff`,
+            onClick: openShift ? postManagerCoverageAsk : postManagerHandoffDigest,
+          },
+        ]}
+      />
       <section className="main-grid">
         <Panel title={ownerManaged ? "Owner Manager Board" : "Manager Coverage Board"} eyebrow={ownerManaged ? `${dateInfo.label} / no manager assigned` : `${dateInfo.label} by work area`} action={<button type="button" onClick={() => openManagerSchedule("Manager schedule opened from dashboard.")} {...homeActionTarget(scheduleTarget)}>Manage Schedule</button>}>
           {dayShifts.length ? (
@@ -4873,6 +4922,60 @@ function EmployeeDashboard({ data, go, patchData, day }) {
           {primaryActionLabel}
         </button>
       </article>
+
+      <DashboardActionPath
+        eyebrow="Employee path"
+        title={nextShift ? "Shift path ready" : openShifts.length ? "Pickup shift available" : "Day is clear"}
+        detail={nextShift ? `${locationName(nextShift.locationId)} - ${nextShift.role}` : openShifts.length ? `${openShifts.length} open shift${openShifts.length === 1 ? "" : "s"} for ${dateLabel}.` : `No approved shift is scheduled for ${dateLabel}.`}
+        tone={nextShift ? "good" : openShifts.length ? "info" : "neutral"}
+        items={[
+          {
+            id: "schedule",
+            icon: CalendarBlank,
+            label: "Schedule",
+            detail: nextShift ? `${formatHour(nextShift.start)} - ${formatHour(nextShift.end)}` : `No approved shift for ${dateLabel}`,
+            status: nextShift ? "Set" : "Open",
+            tone: nextShift ? "good" : "neutral",
+            target: "employee-schedule",
+            onClick: openEmployeeSchedule,
+          },
+          {
+            id: "clock",
+            icon: Clock,
+            label: "Time Clock",
+            detail: dateInfo.isToday ? "Location check, clock, and lunch." : "Review only until the workday.",
+            status: dateInfo.isToday ? "Today" : "Later",
+            tone: dateInfo.isToday ? "info" : "neutral",
+            target: "employee-clock",
+            onClick: () => go("employee-clock", `Time clock opened from employee path for ${dateInfo.label}.`, {
+              title: `${dateInfo.label} time clock`,
+              detail: dateInfo.isToday ? "Location check, clock, and lunch actions are available today." : "Future dates are review only until the workday.",
+              source: "Employee path",
+              scheduleDate: selectedDate,
+            }),
+          },
+          {
+            id: "open-shifts",
+            icon: Sparkle,
+            label: "Open Shifts",
+            detail: openShifts.length ? "Request extra hours." : `No pickup options for ${dateLabel}.`,
+            status: openShifts.length || "None",
+            tone: openShifts.length ? "info" : "good",
+            target: "employee-shifts",
+            onClick: () => openEmployeeShifts(`Open shifts opened from employee path for ${dateInfo.label}.`),
+          },
+          {
+            id: "guide",
+            icon: BookOpenText,
+            label: "Guide",
+            detail: nextGuide ? nextGuide.title : "All guide cards are complete.",
+            status: nextGuide ? `${nextGuide.completion}%` : "Done",
+            tone: nextGuide && nextGuide.completion < 75 ? "warn" : "good",
+            target: "employee-guide",
+            onClick: openEmployeeGuide,
+          },
+        ]}
+      />
 
       <section className="employee-quick-grid" aria-label="Employee quick actions">
         <button type="button" className="employee-quick-card" onClick={() => openEmployeeShifts()} {...homeActionTarget("employee-shifts")}>

@@ -14,6 +14,7 @@ Passed:
 - Owner, manager, employee, signed-out, and platform-admin markers were visible on the right screens.
 - Restricted owner/admin text did not appear on manager, employee, or signed-out screens.
 - Safe Preview stayed visible on preview routes.
+- Manager and employee dashboard action paths stayed contained, showed four role-safe workflow buttons, and did not create page-level horizontal overflow.
 
 Observed and accepted:
 
@@ -28,6 +29,8 @@ Observed and accepted:
 | Owner team safe preview | Passed | [owner-team-safe-preview.png](browser-qa-screenshots/owner-team-safe-preview.png) |
 | Manager schedule safe preview | Passed | [manager-schedule-safe-preview.png](browser-qa-screenshots/manager-schedule-safe-preview.png) |
 | Employee dashboard safe preview | Passed | [employee-dashboard-safe-preview.png](browser-qa-screenshots/employee-dashboard-safe-preview.png) |
+| Manager dashboard action path | Passed | [manager-dashboard-action-path-view.png](browser-qa-screenshots/manager-dashboard-action-path-view.png) |
+| Employee dashboard action path | Passed | [employee-dashboard-action-path-view.png](browser-qa-screenshots/employee-dashboard-action-path-view.png) |
 | Signed out | Passed | [signed-out.png](browser-qa-screenshots/signed-out.png) |
 | Platform admin command review | Passed | [platform-admin-command-review.png](browser-qa-screenshots/platform-admin-command-review.png) |
 
@@ -39,6 +42,8 @@ Observed and accepted:
 | Owner team safe preview | 0 | No | 0 | 41 |
 | Manager schedule safe preview | 0 | No | 0 | 66 |
 | Employee dashboard safe preview | 0 | No | 0 | 38 |
+| Manager dashboard action path | 0 | No | 0 | 4 role-safe path buttons |
+| Employee dashboard action path | 0 | No | 0 | 4 employee-only path buttons |
 | Signed out | 0 | No | 0 | 8 |
 | Platform admin command review | 0 | No | 0 | 8 |
 

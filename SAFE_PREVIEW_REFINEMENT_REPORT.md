@@ -36,8 +36,9 @@ This pass stayed inside Safe Change Preview and did not create real Supabase use
 
 These files were added or separated so the app can scale without putting every rule into one giant screen file:
 
-- `src/RoleAccessRules.js`: owns allowed sections, safe fallbacks, and manager-as-employee behavior.
-- `src/StateRecoveryRules.js`: repairs broken or older saved prototype data before screens use it.
+- `src/RolePermissionRules.js`: owns allowed sections, safe fallbacks, and manager-as-employee behavior.
+- `src/SavedDataRepairRules.js`: repairs broken or older saved prototype data before screens use it.
+- `src/DashboardActionPath.jsx`: keeps role-safe dashboard action paths reusable and compact.
 - `scripts/check-information-flow.mjs`: proves important actions update the right local state.
 - `scripts/check-account-access-flow.mjs`: proves linked preview accounts and invite boundaries stay intact.
 - `scripts/check-saved-data-recovery.mjs`: proves corrupt saved data does not make the app blank.

@@ -1,7 +1,7 @@
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { createServer } from "vite";
-import { safePreviewAccounts, safePreviewAccountUrl } from "../src/SafePreviewAccounts.js";
+import { safePreviewAccounts, safePreviewAccountUrl } from "../src/PreviewTestAccounts.js";
 
 const storage = new Map();
 
@@ -55,7 +55,7 @@ function assertExcludes(html, labels, screen) {
 async function renderAccount(server, account) {
   const url = safePreviewAccountUrl(account, "2026-06-24");
   installBrowserStubs(url.replace("/", ""));
-  const module = await server.ssrLoadModule("/src/MainWorkForceApp.jsx");
+  const module = await server.ssrLoadModule("/src/WorkForceAppScreens.jsx");
   return renderToStaticMarkup(React.createElement(module.App));
 }
 

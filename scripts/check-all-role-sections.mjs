@@ -2,7 +2,7 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { readFile } from "node:fs/promises";
 import { createServer } from "vite";
-import { sectionIdsForRole } from "../src/RoleAccessRules.js";
+import { sectionIdsForRole } from "../src/RolePermissionRules.js";
 
 const storage = new Map();
 
@@ -63,7 +63,7 @@ function assertSameList(actual, expected, screen) {
 
 async function renderScreen(server, search) {
   installBrowserStubs(search);
-  const module = await server.ssrLoadModule("/src/MainWorkForceApp.jsx");
+  const module = await server.ssrLoadModule("/src/WorkForceAppScreens.jsx");
   return renderToStaticMarkup(React.createElement(module.App));
 }
 
@@ -140,12 +140,12 @@ async function assertRoleSections(server, role, account, sections, restrictedLab
 }
 
 async function run() {
-  const appSource = await readFile("src/MainWorkForceApp.jsx", "utf8");
-  const roleRulesSource = await readFile("src/RoleAccessRules.js", "utf8");
+  const appSource = await readFile("src/WorkForceAppScreens.jsx", "utf8");
+  const roleRulesSource = await readFile("src/RolePermissionRules.js", "utf8");
   assertIncludes(appSource, [
     "function canRoleAccessSection",
     "function safeSectionForRole",
-    "from \"./RoleAccessRules.js\"",
+    "from \"./RolePermissionRules.js\"",
   ], "role access architecture");
   assertIncludes(roleRulesSource, [
     "export function sectionIdsForRole",
@@ -160,7 +160,7 @@ async function run() {
   });
 
   try {
-    const appModule = await server.ssrLoadModule("/src/MainWorkForceApp.jsx");
+    const appModule = await server.ssrLoadModule("/src/WorkForceAppScreens.jsx");
     assertIncludes(appModule.navigationSectionIdsForTest.toString(), ["navForRole"], "navigation test export");
     for (const role of ["owner", "manager", "employee", "platform-admin"]) {
       assertSameList(

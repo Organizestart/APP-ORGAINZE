@@ -165,7 +165,7 @@ async function assertRoutes(server, routes, screen) {
 
 async function renderScreen(server, search) {
   installBrowserStubs(search);
-  const module = await server.ssrLoadModule("/src/MainWorkForceApp.jsx");
+  const module = await server.ssrLoadModule("/src/WorkForceAppScreens.jsx");
   return renderToStaticMarkup(React.createElement(module.App));
 }
 
@@ -175,7 +175,7 @@ async function run() {
     logLevel: "silent",
     server: { middlewareMode: true },
   });
-  const appSource = await readFile("src/MainWorkForceApp.jsx", "utf8");
+  const appSource = await readFile("src/WorkForceAppScreens.jsx", "utf8");
 
   try {
     const checks = [
@@ -275,6 +275,8 @@ async function run() {
           "Team Clock Status",
           "Approvals",
           "Guide Progress",
+          "Manager path",
+          "Close coverage first",
           "Manager Coverage Board",
           "Manager Actions",
           "Next Actions",
@@ -330,6 +332,8 @@ async function run() {
         search: "?role=employee&section=employee-dashboard",
         includes: [
           "Next shift",
+          "Employee path",
+          "Shift path ready",
           "open shifts",
           "Shift Readiness",
           "Shift plan",

@@ -20,19 +20,28 @@ function findPassiveControls(source, controlName, allowedPattern) {
 }
 
 async function run() {
-  const source = await readFile("src/MainWorkForceApp.jsx", "utf8");
-  const buttonCheck = findPassiveControls(source, "button", /onClick=|type="submit"|disabled\b/);
-  const selectCheck = findPassiveControls(source, "select", /onChange=|disabled\b/);
-  const passiveControls = [
-    ...buttonCheck.passive.map((item) => ({ type: "button", ...item })),
-    ...selectCheck.passive.map((item) => ({ type: "select", ...item })),
+  const files = [
+    "src/WorkForceAppScreens.jsx",
+    "src/DashboardActionPath.jsx",
   ];
+  const checks = await Promise.all(files.map(async (file) => {
+    const source = await readFile(file, "utf8");
+    return {
+      file,
+      buttons: findPassiveControls(source, "button", /onClick=|type="submit"|disabled\b/),
+      selects: findPassiveControls(source, "select", /onChange=|disabled\b/),
+    };
+  }));
+  const passiveControls = checks.flatMap((check) => [
+    ...check.buttons.passive.map((item) => ({ file: check.file, type: "button", ...item })),
+    ...check.selects.passive.map((item) => ({ file: check.file, type: "select", ...item })),
+  ]);
 
   if (passiveControls.length) {
     console.error("Clickable action check failed.");
     console.error("These controls look usable, but do not have a wired action, submit handler, or disabled state:");
     passiveControls.slice(0, 20).forEach((item) => {
-      console.error(`${item.type} at src/MainWorkForceApp.jsx:${item.line} ${item.tag}`);
+      console.error(`${item.type} at ${item.file}:${item.line} ${item.tag}`);
     });
     process.exit(1);
   }
@@ -40,8 +49,8 @@ async function run() {
   console.log(JSON.stringify({
     clickableActions: "passed",
     checked: {
-      buttons: buttonCheck.count,
-      dropdowns: selectCheck.count,
+      buttons: checks.reduce((sum, check) => sum + check.buttons.count, 0),
+      dropdowns: checks.reduce((sum, check) => sum + check.selects.count, 0),
     },
     rule: "visible buttons and dropdowns need behavior, submit handling, or a deliberate disabled state",
   }, null, 2));

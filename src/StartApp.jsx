@@ -1,13 +1,13 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import { App } from "./MainWorkForceApp.jsx";
-import { SafeChangeShield } from "./SafeChangeShield.jsx";
-import "./AppDesign.css";
+import { App } from "./WorkForceAppScreens.jsx";
+import { CrashProtectionScreen } from "./CrashProtectionScreen.jsx";
+import "./WorkForceScreenDesign.css";
 
 createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <SafeChangeShield>
+    <CrashProtectionScreen>
       <App />
-    </SafeChangeShield>
+    </CrashProtectionScreen>
   </React.StrictMode>,
 );

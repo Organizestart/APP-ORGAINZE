@@ -54,13 +54,13 @@ function assertExcludes(source, labels, area) {
 
 async function renderScreen(server, search) {
   installBrowserStubs(search);
-  const module = await server.ssrLoadModule("/src/MainWorkForceApp.jsx");
+  const module = await server.ssrLoadModule("/src/WorkForceAppScreens.jsx");
   return renderToStaticMarkup(React.createElement(module.App));
 }
 
 async function run() {
-  const appSource = await readFile("src/MainWorkForceApp.jsx", "utf8");
-  const cssSource = await readFile("src/AppDesign.css", "utf8");
+  const appSource = await readFile("src/WorkForceAppScreens.jsx", "utf8");
+  const cssSource = await readFile("src/WorkForceScreenDesign.css", "utf8");
 
   assertIncludes(appSource, ["<details className=\"safe-preview-test-lab\">", "safe-preview-lab-body"], "Safe preview compact lab");
   assertIncludes(appSource, ["safe-change-preview-mode"], "Safe preview shell marker");

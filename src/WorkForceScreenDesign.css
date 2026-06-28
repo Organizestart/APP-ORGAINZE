@@ -1743,6 +1743,167 @@ textarea {
   color: var(--blue);
 }
 
+.dashboard-action-path {
+  display: grid;
+  grid-template-columns: minmax(230px, 0.58fr) minmax(0, 1.42fr);
+  gap: 10px;
+  align-items: stretch;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid #cddbd3;
+  border-radius: 8px;
+  background: #fbfdfb;
+}
+
+.dashboard-action-path.warn {
+  border-color: #e8d2ac;
+  background: #fffaf0;
+}
+
+.dashboard-action-path.info {
+  border-color: #ccdced;
+  background: #f7fbff;
+}
+
+.dashboard-action-path.neutral {
+  border-color: var(--faint);
+  background: var(--panel-soft);
+}
+
+.dashboard-action-path-summary {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--faint);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.dashboard-action-path-summary h3 {
+  margin: 2px 0 5px;
+  color: var(--ink);
+  font-size: 1.02rem;
+  line-height: 1.2;
+}
+
+.dashboard-action-path-summary span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.dashboard-action-path-items {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  min-width: 0;
+}
+
+.dashboard-action-path-item {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+  min-height: 64px;
+  padding: 9px;
+  border-color: var(--faint);
+  background: #fff;
+  color: inherit;
+  text-align: left;
+}
+
+.dashboard-action-path-item:hover {
+  border-color: #bdd3c7;
+  background: #f8fcf9;
+  transform: none;
+}
+
+.dashboard-action-path-item svg {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 7px;
+  border-radius: 999px;
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.dashboard-action-path-item.warn svg {
+  background: var(--amber-soft);
+  color: var(--amber);
+}
+
+.dashboard-action-path-item.info svg {
+  background: var(--blue-soft);
+  color: var(--blue);
+}
+
+.dashboard-action-path-item.neutral svg {
+  background: var(--panel-soft);
+  color: var(--muted);
+}
+
+.dashboard-action-path-item > span {
+  min-width: 0;
+}
+
+.dashboard-action-path-item strong,
+.dashboard-action-path-item small {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dashboard-action-path-item strong {
+  color: var(--ink);
+  font-size: 0.83rem;
+  line-height: 1.2;
+}
+
+.dashboard-action-path-item small {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 0.7rem;
+  line-height: 1.25;
+}
+
+.dashboard-action-path-item em {
+  justify-self: end;
+  max-width: 72px;
+  padding: 4px 7px;
+  border-radius: 999px;
+  background: var(--green-soft);
+  color: var(--green);
+  font-size: 0.68rem;
+  font-style: normal;
+  font-weight: 850;
+  line-height: 1.1;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dashboard-action-path-item.warn em {
+  background: var(--amber-soft);
+  color: #7d481d;
+}
+
+.dashboard-action-path-item.info em {
+  background: var(--blue-soft);
+  color: var(--blue);
+}
+
+.dashboard-action-path-item.neutral em {
+  background: var(--panel-soft);
+  color: var(--muted);
+}
+
 .readiness-item span {
   display: grid;
   min-width: 0;
@@ -10119,8 +10280,16 @@ textarea {
     grid-template-columns: 1fr;
   }
 
+  .dashboard-action-path {
+    grid-template-columns: 1fr;
+  }
+
   .readiness-items {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .dashboard-action-path-items {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .date-brief-grid {
@@ -10752,8 +10921,22 @@ textarea {
   .employee-shift-meta,
   .employee-card-actions,
   .employee-mini-list,
-  .employee-readiness-list {
+  .employee-readiness-list,
+  .dashboard-action-path-items {
     grid-template-columns: 1fr;
+  }
+
+  .dashboard-action-path {
+    padding: 8px;
+  }
+
+  .dashboard-action-path-item {
+    grid-template-columns: 30px minmax(0, 1fr);
+  }
+
+  .dashboard-action-path-item em {
+    grid-column: 2;
+    justify-self: start;
   }
 
   .employee-card-head {
