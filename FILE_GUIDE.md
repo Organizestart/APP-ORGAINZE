@@ -17,6 +17,7 @@ These are the main files you will usually care about.
 | `scripts/testPreviewAccounts.mjs` | Checks the ten Safe Preview accounts and their role boundaries. |
 | `scripts/testDashboardLayout.mjs` | Checks the owner and manager dashboard format does not go back to cramped cards. |
 | `scripts/testAllRoleSections.mjs` | Opens every owner, manager, employee, signed-out, and platform-admin section in Safe Preview. |
+| `scripts/testInformationFlow.mjs` | Checks that important actions really update schedule, requests, time, events, reports, and team messages. |
 | `scripts/testAppSizeAndSpeed.mjs` | Checks that test changes do not make the app bundle too large and slow. |
 | `supabase/migrations/` | Database setup and security changes that Supabase reads from GitHub. |
 | `SECURITY_RUNBOOK.md` | Human checklist for account security, bot protection, billing protection, and audit logging. |

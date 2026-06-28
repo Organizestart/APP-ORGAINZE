@@ -11961,6 +11961,50 @@ function shareReportToHandoff(patchData, options = {}) {
   }, "Report shared to Manager Handoff.");
 }
 
+export function runWorkflowActionForTest(action, payload = {}, state = baseState) {
+  let nextData = normalizeState(JSON.parse(JSON.stringify(state || baseState)));
+  const toasts = [];
+  const patchData = (updater, message) => {
+    nextData = typeof updater === "function" ? updater(nextData) : { ...nextData, ...updater };
+    if (message) toasts.push(message);
+  };
+
+  if (action === "dashboard-handoff") {
+    sendDashboardHandoff(payload.day || operationsToday, payload.location || "all", patchData);
+  } else if (action === "coverage-support") {
+    requestCoverageSupport(patchData, payload);
+  } else if (action === "approve-request") {
+    updateRequest(payload.id, payload.status || "approved", patchData);
+  } else if (action === "time-correction") {
+    requestTimeCorrection(payload.id, patchData);
+  } else if (action === "generate-report") {
+    generateReport(patchData, payload);
+  } else if (action === "share-report") {
+    shareReportToHandoff(patchData, payload);
+  } else if (action === "add-open-shift") {
+    addOpenShiftForScheduleDay({
+      date: payload.date || operationsToday,
+      location: payload.location || "all",
+      selectedShift: payload.selectedShift || null,
+      timelineBounds: payload.timelineBounds || null,
+      data: nextData,
+      patchData,
+    });
+  } else if (action === "update-event") {
+    updateEvent(payload.id, payload.form || {}, patchData);
+  } else if (action === "delete-event") {
+    deleteEvent(payload.id, patchData);
+  } else if (action === "create-invite") {
+    createTeamInvite(payload.form || {}, payload.role || "owner", patchData);
+  } else if (action === "send-near-work-note") {
+    sendNearWorkNote(patchData);
+  } else {
+    throw new Error(`Unknown workflow test action: ${action}`);
+  }
+
+  return { data: nextData, toasts };
+}
+
 function exportData(value, filename) {
   const blob = new Blob([JSON.stringify(value, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
