@@ -41,6 +41,7 @@ npm run safe-change:check
 - The built app stays under the current performance budget so test changes do not quietly add lag.
 - Signed-out state does not show Owner, Manager, or Employee role buttons.
 - Admin command review stays platform-admin-only.
+- Command review service is checked in production mode so command endpoints are disabled or token-protected.
 - Safe Change Preview loads for owner, manager, and employee.
 - Safe preview screens do not expose restricted owner or manager controls.
 - Broken or older saved prototype data does not make owner, manager, employee, or Safe Change Preview screens go blank.

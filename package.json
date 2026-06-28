@@ -9,6 +9,7 @@
     "preview": "vite preview --host 127.0.0.1",
     "command:service": "node server/AdminReviewServer.mjs",
     "command:smoke": "node scripts/testAdminReviewServer.mjs",
+    "command-boundary:smoke": "node scripts/testCommandProductionBoundary.mjs",
     "home:smoke": "node scripts/testHomeButtons.mjs",
     "safe-change:smoke": "node scripts/testSafePreview.mjs",
     "preview-accounts:smoke": "node scripts/testPreviewAccounts.mjs",
@@ -19,7 +20,7 @@
     "visual-safety:smoke": "node scripts/testVisualSafety.mjs",
     "supabase-readiness:smoke": "node scripts/testSupabaseReadiness.mjs",
     "performance:budget": "node scripts/testAppSizeAndSpeed.mjs",
-    "safe-change:check": "npm run build && npm run performance:budget && npm run home:smoke && npm run command:smoke && npm run safe-change:smoke && npm run preview-accounts:smoke && npm run dashboard-layout:smoke && npm run all-sections:smoke && npm run information-flow:smoke && npm run saved-data:smoke && npm run visual-safety:smoke && npm run supabase-readiness:smoke"
+    "safe-change:check": "npm run build && npm run performance:budget && npm run home:smoke && npm run command:smoke && npm run command-boundary:smoke && npm run safe-change:smoke && npm run preview-accounts:smoke && npm run dashboard-layout:smoke && npm run all-sections:smoke && npm run information-flow:smoke && npm run saved-data:smoke && npm run visual-safety:smoke && npm run supabase-readiness:smoke"
   },
   "dependencies": {
     "@openai/agents": "^0.12.0",

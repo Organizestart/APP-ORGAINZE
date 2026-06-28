@@ -16,6 +16,8 @@ Payroll tracking rule: owner and manager time-review screens should show hourly 
 
 Command Review rule: keep Command Review as a platform/admin tool, not a customer owner feature. Real agent reviews run through the local command service with PM, Designer, and Engineer lanes. Safe fixes are patch proposals only; the app must not directly mutate source files from the UI.
 
+Command production boundary rule: keep `npm run command-boundary:smoke` passing when changing `server/AdminReviewServer.mjs`, Vite proxying, command review UI, or environment configuration. Production mode must leave command endpoints disabled unless `COMMAND_SERVICE_ENABLED=true`, require `COMMAND_ADMIN_TOKEN` for non-health endpoints, block disallowed origins, and still keep fixes as proposals rather than direct source mutation.
+
 Supabase connection rule: Supabase project configuration, migrations, and public anon-key placeholders may live in GitHub, but real `.env` files, service-role keys, database passwords, and access tokens must never be committed. Treat Supabase as the production data target only after each prototype localStorage workflow is intentionally migrated and role-tested.
 
 Security hardening rule: production authority must come from Supabase RLS or server-side checks, not URL role parameters or localStorage. Keep v1 invite-only, disable anonymous and SMS auth, require CAPTCHA/Turnstile on public account flows, protect command/AI routes behind platform-admin auth, and record sensitive role, pay, schedule, time, event, billing, and delete actions in an audit trail.

@@ -24,6 +24,7 @@ This pass stayed inside Safe Change Preview and did not create real Supabase use
 - Added saved-data recovery tests so broken or older local prototype data does not blank the app.
 - Added visual-safety tests for representative screens, bad display values, long labels, and CSS containment guardrails.
 - Added Supabase readiness tests for migration hardening, secret boundaries, and prototype-vs-production warnings.
+- Added production-boundary tests for the command review service so it is disabled or token-protected outside local development.
 - Updated project rules, architecture notes, and file guide.
 - Created a reusable Codex skill: `workforce-safe-preview-refinement`.
 
@@ -37,6 +38,7 @@ These files were added or separated so the app can scale without putting every r
 - `scripts/testSavedDataRecovery.mjs`: proves corrupt saved data does not make the app blank.
 - `scripts/testVisualSafety.mjs`: checks representative screens and CSS containment rules.
 - `scripts/testSupabaseReadiness.mjs`: checks Supabase migrations, secrets, and production-readiness boundaries.
+- `scripts/testCommandProductionBoundary.mjs`: proves production command endpoints are disabled or require the admin token.
 
 ## Role Coverage
 
@@ -90,6 +92,7 @@ These are not complete yet:
 - Browser role switching is still prototype behavior.
 - Payment and billing are still prototype UI, not real billing.
 - Command Review real AI lanes require `OPENAI_API_KEY`; deterministic checks pass without it.
+- Production Command Review endpoints must stay disabled or protected by `COMMAND_ADMIN_TOKEN`.
 - Production launch still needs Supabase Security Advisor checked live, auth rate limits, CAPTCHA/Turnstile, spend controls, and deployed server-side authorization.
 - GitHub push from the terminal is blocked until command-line credentials are configured or GitHub Desktop pushes the local commits.
 
@@ -101,6 +104,7 @@ Passed:
 - `npm run performance:budget`
 - `npm run home:smoke`
 - `npm run command:smoke`
+- `npm run command-boundary:smoke`
 - `npm run safe-change:smoke`
 - `npm run preview-accounts:smoke`
 - `npm run dashboard-layout:smoke`
@@ -116,6 +120,7 @@ The current `npm run safe-change:check` gate now covers:
 - Build and performance budget.
 - Home action and destination routing.
 - Command service health and platform-admin separation.
+- Production command-service disable/token/origin boundary.
 - Safe Change Preview and ten linked accounts.
 - Owner, manager, employee, signed-out, and platform-admin section rendering.
 - Information-flow state updates.
