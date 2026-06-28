@@ -15,8 +15,9 @@
     "dashboard-layout:smoke": "node scripts/testDashboardLayout.mjs",
     "all-sections:smoke": "node scripts/testAllRoleSections.mjs",
     "information-flow:smoke": "node scripts/testInformationFlow.mjs",
+    "saved-data:smoke": "node scripts/testSavedDataRecovery.mjs",
     "performance:budget": "node scripts/testAppSizeAndSpeed.mjs",
-    "safe-change:check": "npm run build && npm run performance:budget && npm run home:smoke && npm run command:smoke && npm run safe-change:smoke && npm run preview-accounts:smoke && npm run dashboard-layout:smoke && npm run all-sections:smoke && npm run information-flow:smoke"
+    "safe-change:check": "npm run build && npm run performance:budget && npm run home:smoke && npm run command:smoke && npm run safe-change:smoke && npm run preview-accounts:smoke && npm run dashboard-layout:smoke && npm run all-sections:smoke && npm run information-flow:smoke && npm run saved-data:smoke"
   },
   "dependencies": {
     "@openai/agents": "^0.12.0",

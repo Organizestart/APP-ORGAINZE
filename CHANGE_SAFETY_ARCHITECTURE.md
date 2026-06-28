@@ -43,6 +43,7 @@ npm run safe-change:check
 - Admin command review stays platform-admin-only.
 - Safe Change Preview loads for owner, manager, and employee.
 - Safe preview screens do not expose restricted owner or manager controls.
+- Broken or older saved prototype data does not make owner, manager, employee, or Safe Change Preview screens go blank.
 
 ## Working Rules
 
