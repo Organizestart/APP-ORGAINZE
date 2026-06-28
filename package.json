@@ -1,0 +1,25 @@
+{
+  "name": "workforce-command-center",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -k -n command,vite \"npm run command:service\" \"vite --host 127.0.0.1\"",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "command:service": "node server/command-service.mjs",
+    "command:smoke": "node scripts/command-smoke.mjs",
+    "home:smoke": "node scripts/home-action-smoke.mjs"
+  },
+  "dependencies": {
+    "@openai/agents": "^0.12.0",
+    "@phosphor-icons/react": "^2.1.10",
+    "@vitejs/plugin-react": "5.0.4",
+    "concurrently": "^10.0.3",
+    "express": "^5.2.1",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "vite": "6.4.3",
+    "zod": "^4.4.3"
+  }
+}
