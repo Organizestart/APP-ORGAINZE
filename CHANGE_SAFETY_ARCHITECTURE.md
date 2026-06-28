@@ -44,6 +44,7 @@ npm run safe-change:check
 - Safe Change Preview loads for owner, manager, and employee.
 - Safe preview screens do not expose restricted owner or manager controls.
 - Broken or older saved prototype data does not make owner, manager, employee, or Safe Change Preview screens go blank.
+- Representative screens and CSS guardrails are checked for bad display values, long unbroken text, and missing containment rules.
 
 ## Working Rules
 
