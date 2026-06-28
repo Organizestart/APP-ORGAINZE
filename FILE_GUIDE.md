@@ -7,6 +7,7 @@ These are the main files you will usually care about.
 | `src/StartApp.jsx` | Starts the app in the browser. |
 | `src/SafeChangeShield.jsx` | Catches screen crashes so a broken test does not become a blank page. |
 | `src/SafePreviewAccounts.js` | Ten local test accounts and flow checks used only in Safe Change Preview. |
+| `src/RoleAccessRules.js` | Keeps the owner, manager, employee, and platform-admin section access rules in one clear place. |
 | `src/MainWorkForceApp.jsx` | The main WorkForce app screens, buttons, dashboards, and workflows. |
 | `src/AppDesign.css` | The app's colors, spacing, sizing, layout, and visual design. |
 | `src/lib/ConnectToSupabase.js` | Connects the app to Supabase when the project keys are added. |

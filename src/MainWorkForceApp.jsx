@@ -45,6 +45,12 @@ import {
   safePreviewInviteRecords,
   safePreviewTeamAccounts,
 } from "./SafePreviewAccounts.js";
+import {
+  firstSectionByRole,
+  runtimeRoleForSection,
+  safeSectionForRole as safeSectionFromRules,
+  sectionIdsForRole as sectionIdsFromRules,
+} from "./RoleAccessRules.js";
 
 const mainWorkspaceStorageKey = "workforce-command-center-v9";
 const safePreviewStorageKey = "workforce-command-center-safe-preview-v1";
@@ -527,13 +533,6 @@ const employeeNav = [
   ["employee-guide", "Guide", BookOpenText, "Employee Section"],
   ["employee-settings", "Settings", Gear, "Employee Section"],
 ];
-
-const firstSectionByRole = {
-  owner: "owner-dashboard",
-  manager: "manager-dashboard",
-  employee: "employee-dashboard",
-  "platform-admin": "admin-command-review",
-};
 
 const settingsTabIds = ["business", "locations", "roles", "billing", "security", "notifications"];
 const settingsTabLabels = {
@@ -1778,8 +1777,12 @@ function navForRole(role, data = baseState) {
   return employeeNav;
 }
 
+function roleAccessOptions(data = baseState) {
+  return { ownerRunsManagerFunctions: ownerRunsManagerFunctions(data) };
+}
+
 function sectionIdsForRole(role, data = baseState) {
-  return navForRole(role, data).map(([id]) => id);
+  return sectionIdsFromRules(role, roleAccessOptions(data));
 }
 
 function canRoleAccessSection(role, section, data = baseState) {
@@ -1787,11 +1790,7 @@ function canRoleAccessSection(role, section, data = baseState) {
 }
 
 function safeSectionForRole(role, section, data = baseState) {
-  return canRoleAccessSection(role, section, data) ? section : firstSectionByRole[role];
-}
-
-function runtimeRoleForSection(role, section) {
-  return role === "manager" && section?.startsWith("employee-") ? "employee" : role;
+  return safeSectionFromRules(role, section, roleAccessOptions(data));
 }
 
 function Sidebar({ nav, role, section, onRole, onSection, data }) {

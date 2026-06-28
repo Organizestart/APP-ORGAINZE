@@ -30,6 +30,8 @@ Home dashboard rule: every visible dashboard action should connect to a real wor
 
 Information-flow testing rule: broad workflow changes should prove that important actions mutate the correct local state, not only that screens render. Keep smoke coverage for dashboard handoff, coverage team requests, request decisions, time corrections and audit records, report snapshots and report sharing, future open shifts, event edit/delete history, manager-created employee invites, and employee near-work notes.
 
+Role access architecture rule: keep role section authority in `src/RoleAccessRules.js` instead of scattering permission lists across screen components. Main screens may define visual navigation labels and icons, but the allowed section IDs, safe fallbacks, and manager-as-employee runtime behavior should stay in the shared rule file so authority does not drift as the app grows.
+
 Owner and manager dashboard cleanup rule: owner and manager dashboards are daily operations surfaces, not billing, admin, or AI-agent review surfaces. Keep owner home focused on schedule health, gaps, requests, time risk, team handoff, events, and guide work; keep billing and workspace administration in Settings. Keep manager home focused on schedule, requests, time, guide, and team handoff only. Real Agents SDK / Command Review work stays platform-admin-only.
 
 Owner home business-health rule: the Business Health lower card must follow the selected workspace date. Location rows should count only shifts for that date, open schedule/report destinations with that date context, and include a compact brief action that posts the selected location/date summary into Manager Handoff.

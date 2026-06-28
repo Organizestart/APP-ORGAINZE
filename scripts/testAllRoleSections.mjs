@@ -132,11 +132,17 @@ async function assertRoleSections(server, role, account, sections, restrictedLab
 
 async function run() {
   const appSource = await readFile("src/MainWorkForceApp.jsx", "utf8");
+  const roleRulesSource = await readFile("src/RoleAccessRules.js", "utf8");
   assertIncludes(appSource, [
     "function canRoleAccessSection",
     "function safeSectionForRole",
-    "function runtimeRoleForSection",
+    "from \"./RoleAccessRules.js\"",
   ], "role access architecture");
+  assertIncludes(roleRulesSource, [
+    "export function sectionIdsForRole",
+    "export function safeSectionForRole",
+    "function runtimeRoleForSection",
+  ], "shared role access rules");
 
   const server = await createServer({
     appType: "custom",
