@@ -31,6 +31,8 @@ http://127.0.0.1:5174/?preview=safe-change&role=owner&section=owner-dashboard
 npm run safe-change:check
 ```
 
+7. For visual or role-boundary changes, record a browser pass in `BROWSER_QA_REPORT.md` when the checked screens materially change.
+
 ## What The Safety Check Covers
 
 - The app still builds.
@@ -49,6 +51,7 @@ npm run safe-change:check
 - Representative screens and CSS guardrails are checked for bad display values, long unbroken text, and missing containment rules.
 - Architecture boundaries are checked so role rules, saved-data repair, safe-preview accounts, Supabase connection, crash recovery, and platform-admin service stay separated.
 - Supabase and GitHub-facing files are checked for migration hardening, secret boundaries, and prototype-vs-production warnings.
+- Browser QA evidence can be recorded in `BROWSER_QA_REPORT.md` when a visual pass needs screenshots and human review notes.
 
 ## Working Rules
 

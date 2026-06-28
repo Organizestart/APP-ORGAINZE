@@ -33,6 +33,7 @@ Files that start with `check-` are safety checks. They do not change the app; th
 | `supabase/migrations/` | Database setup and security changes that Supabase reads from GitHub. |
 | `SECURITY_RUNBOOK.md` | Human checklist for account security, bot protection, billing protection, and audit logging. |
 | `ARCHITECTURE_MAP.md` | Plain-English map of how the app is separated so it can keep scaling safely. |
+| `BROWSER_QA_REPORT.md` | Plain-English browser QA results with screenshots for the main role-safe screens. |
 | `CHANGE_SAFETY_ARCHITECTURE.md` | Plain-English plan for testing app changes before making them part of the main app. |
 | `FILE_GUIDE.md` | Plain-English list of the important code and support files. |
 | `SAFE_PREVIEW_REFINEMENT_REPORT.md` | Summary of the ten-account safe-preview test pass, mistakes learned, and verification results. |

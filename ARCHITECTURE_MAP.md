@@ -37,6 +37,7 @@ Current checks cover:
 - Visual overflow and bad display values.
 - Supabase readiness and secret boundaries.
 - Architecture boundaries.
+- Manual browser QA evidence for role-safe screens when visual checks materially change.
 
 ## Scaling Rules
 

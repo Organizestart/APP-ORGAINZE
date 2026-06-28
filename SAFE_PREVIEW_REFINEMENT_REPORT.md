@@ -26,6 +26,7 @@ This pass stayed inside Safe Change Preview and did not create real Supabase use
 - Added visual-safety tests for representative screens, bad display values, long labels, and CSS containment guardrails.
 - Added clickable-action tests so visible buttons and dropdowns cannot silently become decorative controls.
 - Added architecture-boundary tests and a plain-English architecture map so stable rule sets stay separated as the app grows.
+- Added browser QA evidence for owner, manager, employee, signed-out, and platform-admin screens.
 - Added Supabase readiness tests for migration hardening, secret boundaries, and prototype-vs-production warnings.
 - Added production-boundary tests for the command review service so it is disabled or token-protected outside local development.
 - Updated project rules, architecture notes, and file guide.
@@ -45,6 +46,7 @@ These files were added or separated so the app can scale without putting every r
 - `scripts/check-architecture-boundaries.mjs`: checks that startup, role access, saved-data repair, safe-preview accounts, Supabase setup, crash recovery, and command service stay separated.
 - `scripts/check-supabase-readiness.mjs`: checks Supabase migrations, secrets, and production-readiness boundaries.
 - `scripts/check-command-production-boundary.mjs`: proves production command endpoints are disabled or require the admin token.
+- `BROWSER_QA_REPORT.md`: records real browser evidence and screenshots for core role-safe screens.
 
 ## Role Coverage
 
@@ -123,6 +125,7 @@ Passed:
 - `npm run architecture-boundaries:smoke`
 - `npm run supabase-readiness:smoke`
 - `npm run safe-change:check`
+- Browser QA pass recorded in `BROWSER_QA_REPORT.md`
 
 The current `npm run safe-change:check` gate now covers:
 
@@ -138,4 +141,5 @@ The current `npm run safe-change:check` gate now covers:
 - Visual guardrails.
 - Clickable button and dropdown wiring.
 - Architecture boundaries.
+- Browser QA evidence for role-safe screens.
 - Supabase readiness and secret boundaries.
