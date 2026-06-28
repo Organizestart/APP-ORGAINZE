@@ -1131,6 +1131,177 @@ textarea {
   background: transparent;
 }
 
+.safe-change-preview-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border: 1px solid #c5d9cd;
+  border-radius: 8px;
+  background: #eef8f2;
+  box-shadow: 0 10px 24px rgba(28, 81, 59, 0.08);
+}
+
+.safe-change-preview-copy {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  color: #1c513b;
+}
+
+.safe-change-preview-copy > svg {
+  flex: 0 0 auto;
+}
+
+.safe-change-preview-copy div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.safe-change-preview-copy strong {
+  font-size: 0.93rem;
+}
+
+.safe-change-preview-copy span {
+  color: #52625c;
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.safe-change-preview-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.safe-change-preview-actions button,
+.safe-change-preview-actions a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid #bfd4c8;
+  border-radius: 7px;
+  background: #ffffff;
+  color: var(--green);
+  font-size: 0.82rem;
+  font-weight: 850;
+  text-decoration: none;
+}
+
+.safe-change-preview-actions button:first-child {
+  background: var(--green);
+  color: #ffffff;
+}
+
+.safe-change-crash-screen {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 24px;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.safe-change-crash-screen section {
+  width: min(640px, 100%);
+  padding: 28px;
+  border: 1px solid var(--faint);
+  border-radius: 10px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.safe-change-crash-mark {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+  border-radius: 999px;
+  background: var(--red-soft);
+  color: var(--red);
+  font-size: 1.35rem;
+  font-weight: 900;
+}
+
+.safe-change-crash-screen .eyebrow {
+  margin: 0 0 6px;
+}
+
+.safe-change-crash-screen h1 {
+  margin: 0 0 10px;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  line-height: 1;
+}
+
+.safe-change-crash-screen p {
+  margin: 0 0 16px;
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.safe-change-crash-screen pre {
+  overflow: auto;
+  margin: 0 0 18px;
+  padding: 12px;
+  border: 1px solid var(--faint);
+  border-radius: 8px;
+  background: #f8f6ef;
+  color: #5e312d;
+  white-space: pre-wrap;
+}
+
+.safe-change-crash-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.safe-change-crash-actions button,
+.safe-change-crash-actions a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 16px;
+  border: 1px solid var(--faint);
+  border-radius: 7px;
+  background: #ffffff;
+  color: var(--green);
+  font-weight: 850;
+  text-decoration: none;
+}
+
+.safe-change-crash-actions button {
+  background: var(--green);
+  color: #ffffff;
+}
+
+@media (max-width: 720px) {
+  .safe-change-preview-bar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .safe-change-preview-actions {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .safe-change-preview-actions button,
+  .safe-change-preview-actions a {
+    flex: 1 1 150px;
+  }
+}
+
 .screen-grid,
 .stack {
   display: grid;

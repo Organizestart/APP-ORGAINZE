@@ -9,7 +9,9 @@
     "preview": "vite preview --host 127.0.0.1",
     "command:service": "node server/AdminReviewService.mjs",
     "command:smoke": "node scripts/checkAdminReviewService.mjs",
-    "home:smoke": "node scripts/checkHomeButtons.mjs"
+    "home:smoke": "node scripts/checkHomeButtons.mjs",
+    "safe-change:smoke": "node scripts/checkSafeChangePreview.mjs",
+    "safe-change:check": "npm run build && npm run home:smoke && npm run command:smoke && npm run safe-change:smoke"
   },
   "dependencies": {
     "@openai/agents": "^0.12.0",

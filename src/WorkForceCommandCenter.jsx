@@ -39,7 +39,8 @@ import {
 } from "@phosphor-icons/react";
 import { isSupabaseConfigured, supabase } from "./lib/SupabaseConnection.js";
 
-const storageKey = "workforce-command-center-v9";
+const mainWorkspaceStorageKey = "workforce-command-center-v9";
+const safePreviewStorageKey = "workforce-command-center-safe-preview-v1";
 const commandReviewStorageKey = "workforce-admin-command-review-latest";
 const authAttemptStorageKey = "workforce-auth-attempts-v1";
 const inviteAttemptStorageKey = "workforce-invite-attempts-v1";
@@ -545,6 +546,19 @@ function initialRoleFromUrl() {
   return ["owner", "manager", "employee", "platform-admin"].includes(requested) ? requested : "owner";
 }
 
+function isSafeChangePreview() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("preview") === "safe-change" || params.get("sandbox") === "true";
+}
+
+function workspaceStorageKey() {
+  return isSafeChangePreview() ? safePreviewStorageKey : mainWorkspaceStorageKey;
+}
+
+function preserveSafeChangePreview(params) {
+  if (isSafeChangePreview()) params.set("preview", "safe-change");
+}
+
 function initialSectionFromUrl(role) {
   const requested = new URLSearchParams(window.location.search).get("section");
   const allowed = navForRole(role).some(([id]) => id === requested);
@@ -588,6 +602,7 @@ function syncBrowserUrl(role, section, settingsTab, day) {
   const currentParams = new URLSearchParams(window.location.search);
   const preservingSameSchedule = isScheduleSection(section) && currentParams.get("section") === section;
   const params = new URLSearchParams();
+  preserveSafeChangePreview(params);
   params.set("role", role);
   params.set("section", section);
   if (section === "owner-settings") params.set("settings", settingsTab || "business");
@@ -603,6 +618,7 @@ function syncBrowserUrl(role, section, settingsTab, day) {
 
 function syncSchedulePeriodInUrl(scope, day, period, endDate, mode = "schedule") {
   const params = new URLSearchParams(window.location.search);
+  preserveSafeChangePreview(params);
   params.set("role", scope === "owner" ? "owner" : "manager");
   params.set("section", scope === "owner" ? "owner-schedule" : "manager-schedule");
   if (validDateKey(day)) params.set("date", day);
@@ -683,7 +699,7 @@ function ensureSchedulePlanningSeed(state) {
 
 function loadState() {
   try {
-    const stored = JSON.parse(localStorage.getItem(storageKey));
+    const stored = JSON.parse(localStorage.getItem(workspaceStorageKey()));
     return stored ? normalizeState(stored) : normalizeState(baseState);
   } catch {
     return normalizeState(baseState);
@@ -1310,6 +1326,7 @@ function scheduleHourMarks(bounds) {
 
 export function App() {
   const initialRole = useMemo(() => initialRoleFromUrl(), []);
+  const safePreview = useMemo(() => isSafeChangePreview(), []);
   const [data, setData] = useState(loadState);
   const [role, setRole] = useState(initialRole);
   const [section, setSection] = useState(() => initialSectionFromUrl(initialRole));
@@ -1327,7 +1344,7 @@ export function App() {
   const [routeFocus, setRouteFocus] = useState(null);
 
   useEffect(() => {
-    localStorage.setItem(storageKey, JSON.stringify(data));
+    localStorage.setItem(workspaceStorageKey(), JSON.stringify(data));
   }, [data]);
 
   useEffect(() => {
@@ -1343,6 +1360,27 @@ export function App() {
   function patchData(updater, message) {
     setData((current) => (typeof updater === "function" ? updater(current) : { ...current, ...updater }));
     if (message) setToast(message);
+  }
+
+  function resetSafePreview() {
+    localStorage.removeItem(safePreviewStorageKey);
+    setData(normalizeState(baseState));
+    setToast("Safe preview reset. Main app data was not changed.");
+  }
+
+  function copyMainDataToSafePreview() {
+    try {
+      const stored = JSON.parse(localStorage.getItem(mainWorkspaceStorageKey));
+      const nextData = stored ? normalizeState(stored) : normalizeState(baseState);
+      localStorage.setItem(safePreviewStorageKey, JSON.stringify(nextData));
+      setData(nextData);
+      setToast("Main app data copied into the safe preview.");
+    } catch {
+      const nextData = normalizeState(baseState);
+      localStorage.setItem(safePreviewStorageKey, JSON.stringify(nextData));
+      setData(nextData);
+      setToast("Safe preview started with clean demo data.");
+    }
   }
 
   function changeRole(nextRole) {
@@ -1361,6 +1399,7 @@ export function App() {
     setModal(null);
     setToast("");
     const params = new URLSearchParams();
+    preserveSafeChangePreview(params);
     params.set("signedOut", "true");
     window.history.replaceState({}, "", `${window.location.pathname}?${params.toString()}`);
   }
@@ -1465,6 +1504,13 @@ export function App() {
           </div>
         )}
 
+        {safePreview && (
+          <SafeChangePreviewBar
+            onReset={resetSafePreview}
+            onCopyMain={copyMainDataToSafePreview}
+          />
+        )}
+
         <Screen
           data={data}
           patchData={patchData}
@@ -1504,6 +1550,31 @@ export function App() {
         />
       )}
     </div>
+  );
+}
+
+function SafeChangePreviewBar({ onReset, onCopyMain }) {
+  const currentParams = new URLSearchParams(window.location.search);
+  const exitParams = new URLSearchParams(currentParams);
+  exitParams.delete("preview");
+  exitParams.delete("sandbox");
+  const exitUrl = `${window.location.pathname}?${exitParams.toString()}`;
+
+  return (
+    <section className="safe-change-preview-bar" aria-label="Safe change preview">
+      <div className="safe-change-preview-copy">
+        <ShieldCheck size={20} weight="fill" />
+        <div>
+          <strong>Safe Change Preview</strong>
+          <span>Testing copy only. Normal owner, manager, and employee data stays protected.</span>
+        </div>
+      </div>
+      <div className="safe-change-preview-actions">
+        <button type="button" onClick={onCopyMain}>Copy Main Data</button>
+        <button type="button" onClick={onReset}>Reset Preview</button>
+        <a href={exitUrl}>Exit Preview</a>
+      </div>
+    </section>
   );
 }
 
