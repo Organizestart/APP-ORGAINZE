@@ -92,6 +92,8 @@ function assertCssVisualGuards(css) {
     ".event-row",
     ".time-clock-layout",
     ".employee-phone-shell",
+    ".topbar-controls",
+    ".topbar .location-search-control input",
   ];
   const missingSelectors = requiredSelectors.filter((selector) => !css.includes(selector));
   if (missingSelectors.length) throw new Error(`Missing visual containment selectors: ${missingSelectors.join(", ")}`);
@@ -105,6 +107,18 @@ function assertCssVisualGuards(css) {
   const failures = checks.filter(([, count, minimum]) => count < minimum);
   if (failures.length) {
     throw new Error(`Visual CSS guard count too low: ${failures.map(([label, count, minimum]) => `${label} ${count}/${minimum}`).join(", ")}`);
+  }
+
+  const topbarCompactGuards = [
+    ".topbar-title,\n  .topbar-controls",
+    "flex: 0 1 auto",
+    "grid-auto-rows: auto",
+    ".topbar .location-search-control input",
+    "height: 42px",
+  ];
+  const missingTopbarGuards = topbarCompactGuards.filter((guard) => !css.includes(guard));
+  if (missingTopbarGuards.length) {
+    throw new Error(`Missing compact responsive topbar guards: ${missingTopbarGuards.join(", ")}`);
   }
 }
 
