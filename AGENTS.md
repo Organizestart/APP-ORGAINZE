@@ -132,4 +132,6 @@ Dashboard metric readability rule: KPI and metric cards must keep text in a real
 
 Responsive topbar rule: when the app switches to the narrow single-column layout, clear desktop flex-basis values from `.topbar-title` and `.topbar-controls` so business, location, date, notification, and account controls stay compact. Do not let topbar controls stretch into tall cards; location inputs should use the available column width instead of a fixed desktop width.
 
+Responsive team chat rule: when the Team workspace stacks into one column, cap the conversation list and let it scroll inside the list. The active conversation and composer should appear soon after the list instead of being pushed far down the page.
+
 Safe change performance rule: safe-preview changes must keep the app under the current performance budget. Run `npm run safe-change:check` after broad UI work; it includes build, route smoke tests, account role tests, command-service checks, and bundle-size budget checks so new experiments do not add avoidable lag.

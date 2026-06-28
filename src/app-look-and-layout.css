@@ -10541,6 +10541,22 @@ textarea {
     grid-template-columns: 1fr;
     height: auto;
     min-height: 0;
+    gap: 12px;
+  }
+
+  .chat-sidebar {
+    max-height: min(340px, 44vh);
+    overflow: hidden;
+  }
+
+  .chat-thread-groups {
+    max-height: min(185px, 25vh);
+    overflow-y: auto;
+  }
+
+  .chat-window {
+    max-height: min(240px, 32vh);
+    overflow-y: auto;
   }
 
   .admin-topbar-controls {

@@ -19,6 +19,7 @@ Passed:
 - Manager dashboard KPI cards stayed readable after the no-icon metric layout fix; the card text no longer collapses into a narrow icon column.
 - Manager schedule board toolbar and card stayed contained at the dashboard reference size; the timeline width stays inside the schedule board instead of widening the whole workspace.
 - Responsive topbar controls stayed compact in the narrow Safe Preview layout; business, location, date, notification, and account controls no longer stretch into tall cards.
+- Responsive Team chat now keeps the conversation list capped with its own scroll area, so the selected chat and message box are visible in the same narrow viewport.
 
 Observed and accepted:
 
@@ -34,6 +35,7 @@ Observed and accepted:
 | Manager schedule safe preview | Passed | [manager-schedule-safe-preview.png](browser-qa-screenshots/manager-schedule-safe-preview.png) |
 | Manager schedule contained desktop | Passed | [manager-schedule-contained-scroll-desktop.png](browser-qa-screenshots/manager-schedule-contained-scroll-desktop.png) |
 | Responsive topbar compact controls | Passed | [topbar-control-compact-after.png](browser-qa-screenshots/topbar-control-compact-after.png) |
+| Responsive Team chat contained | Passed | [team-chat-responsive-contained.png](browser-qa-screenshots/team-chat-responsive-contained.png) |
 | Employee dashboard safe preview | Passed | [employee-dashboard-safe-preview.png](browser-qa-screenshots/employee-dashboard-safe-preview.png) |
 | Manager dashboard action path | Passed | [manager-dashboard-action-path-view.png](browser-qa-screenshots/manager-dashboard-action-path-view.png) |
 | Employee dashboard action path | Passed | [employee-dashboard-action-path-view.png](browser-qa-screenshots/employee-dashboard-action-path-view.png) |
@@ -46,6 +48,7 @@ Observed and accepted:
 | --- | ---: | ---: | ---: | ---: |
 | Owner dashboard safe preview | 0 | No | 0 | 141 |
 | Owner team safe preview | 0 | No | 0 | 41 |
+| Responsive Team chat contained | 0 | No | 0 | list and chat each scroll inside their panel |
 | Manager schedule safe preview | 0 | No | 0 | 66 |
 | Employee dashboard safe preview | 0 | No | 0 | 38 |
 | Manager dashboard action path | 0 | No | 0 | 4 role-safe path buttons |

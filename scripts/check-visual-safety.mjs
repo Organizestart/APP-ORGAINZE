@@ -120,6 +120,16 @@ function assertCssVisualGuards(css) {
   if (missingTopbarGuards.length) {
     throw new Error(`Missing compact responsive topbar guards: ${missingTopbarGuards.join(", ")}`);
   }
+
+  const responsiveTeamChatGuards = [
+    ".chat-sidebar {\n    max-height: min(340px, 44vh)",
+    ".chat-thread-groups {\n    max-height: min(185px, 25vh)",
+    ".chat-window {\n    max-height: min(240px, 32vh)",
+  ];
+  const missingTeamChatGuards = responsiveTeamChatGuards.filter((guard) => !css.includes(guard));
+  if (missingTeamChatGuards.length) {
+    throw new Error(`Missing responsive Team chat containment guards: ${missingTeamChatGuards.join(", ")}`);
+  }
 }
 
 async function renderScreen(server, search) {
