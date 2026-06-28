@@ -24,6 +24,7 @@ This pass stayed inside Safe Change Preview and did not create real Supabase use
 - Added information-flow tests for dashboard handoff, coverage asks, request decisions, time correction, reports, events, invites, and employee near-work notes.
 - Added saved-data recovery tests so broken or older local prototype data does not blank the app.
 - Added visual-safety tests for representative screens, bad display values, long labels, and CSS containment guardrails.
+- Added clickable-action tests so visible buttons and dropdowns cannot silently become decorative controls.
 - Added Supabase readiness tests for migration hardening, secret boundaries, and prototype-vs-production warnings.
 - Added production-boundary tests for the command review service so it is disabled or token-protected outside local development.
 - Updated project rules, architecture notes, and file guide.
@@ -39,6 +40,7 @@ These files were added or separated so the app can scale without putting every r
 - `scripts/check-account-access-flow.mjs`: proves linked preview accounts and invite boundaries stay intact.
 - `scripts/check-saved-data-recovery.mjs`: proves corrupt saved data does not make the app blank.
 - `scripts/check-visual-safety.mjs`: checks representative screens and CSS containment rules.
+- `scripts/check-clickable-actions.mjs`: checks that visible buttons and dropdowns have behavior or an intentional disabled state.
 - `scripts/check-supabase-readiness.mjs`: checks Supabase migrations, secrets, and production-readiness boundaries.
 - `scripts/check-command-production-boundary.mjs`: proves production command endpoints are disabled or require the admin token.
 
@@ -115,6 +117,7 @@ Passed:
 - `npm run information-flow:smoke`
 - `npm run saved-data:smoke`
 - `npm run visual-safety:smoke`
+- `npm run clickable-actions:smoke`
 - `npm run supabase-readiness:smoke`
 - `npm run safe-change:check`
 
@@ -130,4 +133,5 @@ The current `npm run safe-change:check` gate now covers:
 - Information-flow state updates.
 - Saved-data recovery.
 - Visual guardrails.
+- Clickable button and dropdown wiring.
 - Supabase readiness and secret boundaries.

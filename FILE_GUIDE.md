@@ -21,6 +21,7 @@ Files that start with `check-` are safety checks. They do not change the app; th
 | `scripts/check-safe-preview.mjs` | Checks that Safe Change Preview works without exposing the wrong role controls. |
 | `scripts/check-preview-accounts.mjs` | Checks the ten Safe Preview accounts and their role boundaries. |
 | `scripts/check-account-access-flow.mjs` | Checks signed-out account access, linked preview-account URLs, and manager employee-only invite limits. |
+| `scripts/check-clickable-actions.mjs` | Checks that visible buttons and dropdowns have a real action or intentional disabled state. |
 | `scripts/check-dashboard-layout.mjs` | Checks the owner and manager dashboard format does not go back to cramped cards. |
 | `scripts/check-all-role-sections.mjs` | Opens every owner, manager, employee, signed-out, and platform-admin section in Safe Preview. |
 | `scripts/check-information-flow.mjs` | Checks that important actions really update schedule, requests, time, events, reports, and team messages. |

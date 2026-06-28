@@ -6651,6 +6651,7 @@ function TeamWorkspace({ data, role, threadId, setThreadId, messageDraft, setMes
   const [teamAccessOpen, setTeamAccessOpen] = useState(false);
   const [chatMoreOpen, setChatMoreOpen] = useState(false);
   const chatSearchRef = useRef(null);
+  const composerInputRef = useRef(null);
 
   useEffect(() => {
     setChatMoreOpen(false);
@@ -6722,6 +6723,18 @@ function TeamWorkspace({ data, role, threadId, setThreadId, messageDraft, setMes
   function focusChatSearch() {
     chatSearchRef.current?.focus();
     setChatMoreOpen(false);
+  }
+
+  function focusChatComposer() {
+    composerInputRef.current?.focus();
+  }
+
+  function addQuickReaction() {
+    setMessageDraft((draft) => {
+      const trimmed = draft.trim();
+      return trimmed ? `${trimmed} 👍` : "👍";
+    });
+    composerInputRef.current?.focus();
   }
 
   return (
@@ -6829,7 +6842,7 @@ function TeamWorkspace({ data, role, threadId, setThreadId, messageDraft, setMes
         </header>
 
         <div className="chat-tabs" aria-label="Team chat tabs">
-          <button type="button" className="active">
+          <button type="button" className="active" onClick={focusChatComposer} aria-current="page">
             <ChatCircleText size={16} /> Chat
           </button>
         </div>
@@ -6867,10 +6880,10 @@ function TeamWorkspace({ data, role, threadId, setThreadId, messageDraft, setMes
             setMessageDraft("");
           }}
         >
-          <button className="composer-icon" type="button" aria-label="Add quick reaction">
+          <button className="composer-icon" type="button" aria-label="Add quick reaction" onClick={addQuickReaction}>
             <Smiley size={20} />
           </button>
-          <input value={messageDraft} onChange={(event) => setMessageDraft(event.target.value)} placeholder={selectedIsAnnouncementThread ? "Post announcement to team" : `Message ${selected?.person || "team"}`} />
+          <input ref={composerInputRef} value={messageDraft} onChange={(event) => setMessageDraft(event.target.value)} placeholder={selectedIsAnnouncementThread ? "Post announcement to team" : `Message ${selected?.person || "team"}`} />
           <button className="composer-send" type="submit" aria-label="Send message">
             <PaperPlaneRight size={19} weight="fill" />
           </button>
