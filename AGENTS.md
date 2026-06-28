@@ -34,6 +34,8 @@ Role access architecture rule: keep role section authority in `src/RoleAccessRul
 
 Saved-data recovery rule: broad changes that touch app state, storage keys, seed data, or normalization must keep `npm run saved-data:smoke` passing. The app should recover from corrupt, partial, or older local prototype data by rendering owner, manager, employee, and Safe Change Preview screens instead of going blank, and safe-preview renders must not mutate the main saved-data key.
 
+State recovery architecture rule: keep generic saved-data repair behavior in `src/StateRecoveryRules.js` rather than embedding every array/object fallback inside the main screen file. Main screens may add app-specific seed behavior after repair, but corrupt or older state must first pass through the shared recovery rules.
+
 Owner and manager dashboard cleanup rule: owner and manager dashboards are daily operations surfaces, not billing, admin, or AI-agent review surfaces. Keep owner home focused on schedule health, gaps, requests, time risk, team handoff, events, and guide work; keep billing and workspace administration in Settings. Keep manager home focused on schedule, requests, time, guide, and team handoff only. Real Agents SDK / Command Review work stays platform-admin-only.
 
 Owner home business-health rule: the Business Health lower card must follow the selected workspace date. Location rows should count only shifts for that date, open schedule/report destinations with that date context, and include a compact brief action that posts the selected location/date summary into Manager Handoff.

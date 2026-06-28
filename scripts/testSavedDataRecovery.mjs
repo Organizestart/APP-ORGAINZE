@@ -1,6 +1,7 @@
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { createServer } from "vite";
+import { repairWorkspaceState } from "../src/StateRecoveryRules.js";
 
 const storage = new Map();
 const mainStorageKey = "workforce-command-center-v9";
@@ -54,6 +55,10 @@ function assertExcludes(html, labels, screen) {
   if (present.length) throw new Error(`${screen} should not show: ${present.join(", ")}`);
 }
 
+function assert(condition, message) {
+  if (!condition) throw new Error(message);
+}
+
 async function renderScreen(server, search, entries = {}) {
   installBrowserStubs(search, entries);
   const module = await server.ssrLoadModule("/src/MainWorkForceApp.jsx");
@@ -61,6 +66,35 @@ async function renderScreen(server, search, entries = {}) {
 }
 
 async function run() {
+  const repaired = repairWorkspaceState({
+    requests: "broken",
+    shifts: null,
+    businessSetup: { managerCoverage: "owner" },
+    settingsProfile: { displayName: "Recovered Workspace" },
+    messages: [{ id: "custom-message" }],
+  }, {
+    baseState: {
+      requests: [{ id: "request-fallback" }],
+      shifts: [{ id: "shift-fallback" }],
+      messages: [],
+      billing: { plan: "Fallback" },
+      datePlans: {},
+    },
+    defaultBusinessSetup: { managerCoverage: "managers", locationScope: "multi", primaryLocationId: "main" },
+    defaultSettingsProfile: { displayName: "Default Workspace" },
+    defaultWorkspaceHours: {},
+    defaultInvoiceContact: {},
+    defaultSecuritySettings: {},
+    defaultNotificationSettings: {},
+    defaultScheduleOps: {},
+    defaultTimeClock: {},
+  });
+  assert(repaired.requests[0].id === "request-fallback", "State recovery did not repair bad request arrays.");
+  assert(repaired.shifts[0].id === "shift-fallback", "State recovery did not repair bad shift arrays.");
+  assert(repaired.businessSetup.managerCoverage === "owner", "State recovery did not preserve safe business setup values.");
+  assert(repaired.settingsProfile.displayName === "Recovered Workspace", "State recovery did not preserve safe profile values.");
+  assert(repaired.messages[0].id === "custom-message", "State recovery replaced a valid array.");
+
   const server = await createServer({
     appType: "custom",
     logLevel: "silent",
@@ -125,6 +159,7 @@ async function run() {
     console.log(JSON.stringify({
       savedDataRecovery: "passed",
       scenarios: [
+        "direct recovery rule repair",
         "broken main saved data",
         "partial owner-manager saved data",
         "partial manager saved data",

@@ -51,6 +51,7 @@ import {
   safeSectionForRole as safeSectionFromRules,
   sectionIdsForRole as sectionIdsFromRules,
 } from "./RoleAccessRules.js";
+import { repairWorkspaceState } from "./StateRecoveryRules.js";
 
 const mainWorkspaceStorageKey = "workforce-command-center-v9";
 const safePreviewStorageKey = "workforce-command-center-safe-preview-v1";
@@ -644,58 +645,18 @@ function syncSchedulePeriodInUrl(scope, day, period, endDate, mode = "schedule")
   window.history.replaceState({}, "", `${window.location.pathname}?${params.toString()}`);
 }
 
-function migrateLegacyLocationCopy(value) {
-  if (Array.isArray(value)) return value.map(migrateLegacyLocationCopy);
-  if (value && typeof value === "object") {
-    return Object.fromEntries(Object.entries(value).map(([key, entry]) => [key, migrateLegacyLocationCopy(entry)]));
-  }
-  if (typeof value !== "string") return value;
-  return value
-    .replace(/\bDowntown\b/g, "Main workspace")
-    .replace(/\bUptown\b/g, "North team")
-    .replace(/\bSuburb\b/g, "Field team")
-    .replace(/\bAirport\b/g, "Client site")
-    .replace(/\bMall\b/g, "Warehouse")
-    .replace(/\bstore\b/g, "work area");
-}
-
-function safeArray(value, fallback = []) {
-  return Array.isArray(value) ? value : fallback;
-}
-
-function safeObject(value, fallback = {}) {
-  return value && typeof value === "object" && !Array.isArray(value) ? value : fallback;
-}
-
 function normalizeState(state) {
-  const raw = migrateLegacyLocationCopy({ ...baseState, ...safeObject(state) });
-  const repaired = {
-    ...raw,
-    shifts: safeArray(raw.shifts, baseState.shifts),
-    requests: safeArray(raw.requests, baseState.requests),
-    guideCards: safeArray(raw.guideCards, baseState.guideCards),
-    events: safeArray(raw.events, baseState.events),
-    messages: safeArray(raw.messages, baseState.messages),
-    announcements: safeArray(raw.announcements, baseState.announcements),
-    teamInvites: safeArray(raw.teamInvites, baseState.teamInvites),
-    teamAccounts: safeArray(raw.teamAccounts, baseState.teamAccounts),
-    savedLocations: safeArray(raw.savedLocations, baseState.savedLocations),
-    timeEntries: safeArray(raw.timeEntries, baseState.timeEntries),
-    completedGuideIds: safeArray(raw.completedGuideIds, baseState.completedGuideIds),
-    reportSnapshots: safeArray(raw.reportSnapshots, baseState.reportSnapshots),
-    reportLog: safeArray(raw.reportLog, baseState.reportLog),
-    auditLog: safeArray(raw.auditLog, baseState.auditLog),
-    datePlans: safeObject(raw.datePlans, baseState.datePlans || {}),
-    billing: { ...baseState.billing, ...safeObject(raw.billing) },
-    businessSetup: { ...defaultBusinessSetup, ...safeObject(raw.businessSetup) },
-    settingsProfile: { ...defaultSettingsProfile, ...safeObject(raw.settingsProfile) },
-    workspaceHours: { ...defaultWorkspaceHours, ...safeObject(raw.workspaceHours) },
-    invoiceContact: { ...defaultInvoiceContact, ...safeObject(raw.invoiceContact) },
-    securitySettings: { ...defaultSecuritySettings, ...safeObject(raw.securitySettings) },
-    notificationSettings: { ...defaultNotificationSettings, ...safeObject(raw.notificationSettings) },
-    scheduleOps: { ...defaultScheduleOps, ...safeObject(raw.scheduleOps) },
-    timeClock: { ...defaultTimeClock, ...safeObject(raw.timeClock) },
-  };
+  const repaired = repairWorkspaceState(state, {
+    baseState,
+    defaultBusinessSetup,
+    defaultSettingsProfile,
+    defaultWorkspaceHours,
+    defaultInvoiceContact,
+    defaultSecuritySettings,
+    defaultNotificationSettings,
+    defaultScheduleOps,
+    defaultTimeClock,
+  });
   const next = ensureSchedulePlanningSeed(repaired);
   const messages = Array.isArray(next.messages) ? next.messages : baseState.messages;
   if (messages.some((message) => message.id === "m6")) return { ...next, messages };
